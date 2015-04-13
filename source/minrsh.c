@@ -36,7 +36,7 @@
 #include <getopt.h>
 #include <netinet/in.h>
 
-#include "network.h"
+#include "../utils/network.h"
 
 int main(int argc, char **argv) 
 {

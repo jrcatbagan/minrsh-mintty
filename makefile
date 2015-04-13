@@ -5,12 +5,15 @@
 
 .PHONY: default clean
 
+MINRSHDIR = $(PWD)/minrsh
+MINRSHDDIR = $(PWD)/source
+UTILSDIR = $(PWD)/utils
+
 default:
 	@echo "specify 'make client' or 'make server'"
-client: client.c network.c network.h
-	gcc -o client client.c network.c network.h
-server:	server.c network.c network.h
-	gcc -o server server.c network.c network.h
+minrshd: $(MINRSHDDIR)/minrshd.c $(UTILSDIR)/network.c $(UTILSDIR)/network.h
+	gcc -o minrshd $(MINRSHDDIR)/minrshd.c $(UTILSDIR)/network.c $(UTILSDIR)/network.h
+
 clean:
-	rm -f client server
+	rm -f client minrshd
 

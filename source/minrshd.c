@@ -36,7 +36,7 @@
 #include <getopt.h>
 #include <netinet/in.h>
 
-#include "network.h"
+#include "../utils/network.h"
 
 int main(int argc, char **argv)
 {
@@ -45,18 +45,30 @@ int main(int argc, char **argv)
 
 	char retoption;
 	char *port_literal;
+
+
+	/*
+	 * elaborating valid options/arguments
+	 */
 	struct option long_options[] = {
 		{"help", no_argument, NULL, 'h'},
 		{"port", required_argument, NULL, 'p'},
 		{0, 0, 0, 0}
 	};
 
-	/* disable getopt_long from printing error messages */
+
+	/* 
+	 * disable getopt_long from printing error messages 
+	 */
 	opterr = 0;
 
 	enum flag_t {NOT_SET = 0, SET} h_flag, p_flag, err_flag;
 	h_flag = p_flag = err_flag = NOT_SET;
 
+
+	/*
+	 * handle options and arguemtns 
+	 */
 	while((retoption = getopt_long(argc, argv, "hp:", long_options, NULL)) != -1) {
 		switch(retoption) {
 		case 'h':
@@ -96,6 +108,10 @@ int main(int argc, char **argv)
 		port = (uint16_t) atoi(port_literal);
 	}
 
+
+	/*
+	 * set up server
+	 */
         int retval = initserver(&serverfd, port);
         if(retval == -1) {
                 fprintf(stderr, "error: server initiation failed\n");

@@ -39,7 +39,7 @@
 
 int initserver(int *serverfd, uint16_t port)
 {
-        int fd = socket(PF_INET, SOCK_STREAM, 0);
+	int fd = socket(PF_INET, SOCK_STREAM, 0);
         if(fd < 0) {
                 serverfd = NULL;
                 return -1;
