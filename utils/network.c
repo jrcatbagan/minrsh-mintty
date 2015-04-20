@@ -37,9 +37,11 @@
 #include "network.h"
 
 
-int initserver(int *serverfd, uint16_t port)
+int initserver(int *serverfd, const char *ipaddr, uint16_t port)
 {
 	int fd = socket(PF_INET, SOCK_STREAM, 0);
+	int retval;
+
         if(fd < 0) {
                 serverfd = NULL;
                 return -1;
@@ -50,10 +52,16 @@ int initserver(int *serverfd, uint16_t port)
         struct sockaddr_in servername;
 
         servername.sin_family = AF_INET;
-        servername.sin_addr.s_addr = htonl(INADDR_ANY);
+	retval = inet_aton(ipaddr, &(servername.sin_addr));
+        if(retval == 0) {
+                fprintf(stderr, "error: ip address is invalid\n");
+                close(fd);
+                serverfd = NULL;
+                return -1;
+        }
         servername.sin_port = htons(port);
 
-        int retval = bind(*serverfd, (struct sockaddr *) &servername,
+        retval = bind(*serverfd, (struct sockaddr *) &servername,
                           sizeof(servername));
         if(retval != 0) {
                 fprintf(stderr, "error: binding to arbitrary address failed\n");

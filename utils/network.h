@@ -53,7 +53,7 @@
  * @retval 0: Server initialization was successful.
  * @retval 1: Server initialization was unsuccessful.
  */
-int initserver(int *serverfd, uint16_t port);
+int initserver(int *serverfd, const char *ipaddr, uint16_t port);
 
 
 /*
