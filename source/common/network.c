@@ -33,8 +33,9 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <errno.h>
 
-#include "network.h"
+#include "../../include/common/network.h"
 
 
 int initserver(int *serverfd, const char *ipaddr, uint16_t port)
@@ -109,6 +110,7 @@ int initclient(int *serverfd, const char *ipaddr, uint16_t port)
         retval = connect(*serverfd, (struct sockaddr *) &servername,
                              sizeof(servername));
         if(retval != 0) {
+		perror("error: ");
                 fprintf(stderr, "error: connection to %s failed\n", ipaddr);
                 close(fd);
                 serverfd = NULL;
