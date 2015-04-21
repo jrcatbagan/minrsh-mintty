@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 	uint16_t port;
 	const char *ip_address;
 
-	char retoption;
+	int retoption;
 	char *port_literal, *ipaddr_literal;
 	struct option long_options[] = {
 		{"help", no_argument, NULL, 'h'},
