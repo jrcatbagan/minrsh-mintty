@@ -49,14 +49,14 @@ const unsigned char rsbox[256] =
 };
 
 /* round constant */
-const unsigned char Rcon[11] = 
+const unsigned char rcon[11] = 
 {
 
 	0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
 };
 
 /* expand the key */
-void expand_key (unsigned char *expanded_key, unsigned char *key)
+void expand_key(unsigned char *expanded_key, unsigned char *key)
 {
   	unsigned short ii, buf1;
 
@@ -65,274 +65,285 @@ void expand_key (unsigned char *expanded_key, unsigned char *key)
   	}
 
   	for (ii = 1; ii < 11; ii++) {
-    		buf1 = expanded_key[ii*16 - 4];
-    		expanded_key[ii*16 + 0] = sbox[expanded_key[ii*16 - 3]]^expanded_key[(ii-1)*16 + 0]^Rcon[ii];
-    		expanded_key[ii*16 + 1] = sbox[expanded_key[ii*16 - 2]]^expanded_key[(ii-1)*16 + 1];
-   	 	expanded_key[ii*16 + 2] = sbox[expanded_key[ii*16 - 1]]^expanded_key[(ii-1)*16 + 2];
-    		expanded_key[ii*16 + 3] = sbox[buf1                  ]^expanded_key[(ii-1)*16 + 3];
-    		expanded_key[ii*16 + 4] = expanded_key[(ii-1)*16 + 4]^expanded_key[ii*16 + 0];
-    		expanded_key[ii*16 + 5] = expanded_key[(ii-1)*16 + 5]^expanded_key[ii*16 + 1];
-    		expanded_key[ii*16 + 6] = expanded_key[(ii-1)*16 + 6]^expanded_key[ii*16 + 2];
-    		expanded_key[ii*16 + 7] = expanded_key[(ii-1)*16 + 7]^expanded_key[ii*16 + 3];
-    		expanded_key[ii*16 + 8] = expanded_key[(ii-1)*16 + 8]^expanded_key[ii*16 + 4];
-    		expanded_key[ii*16 + 9] = expanded_key[(ii-1)*16 + 9]^expanded_key[ii*16 + 5];
-    		expanded_key[ii*16 +10] = expanded_key[(ii-1)*16 +10]^expanded_key[ii*16 + 6];
-    		expanded_key[ii*16 +11] = expanded_key[(ii-1)*16 +11]^expanded_key[ii*16 + 7];
-    		expanded_key[ii*16 +12] = expanded_key[(ii-1)*16 +12]^expanded_key[ii*16 + 8];
-    		expanded_key[ii*16 +13] = expanded_key[(ii-1)*16 +13]^expanded_key[ii*16 + 9];
-    		expanded_key[ii*16 +14] = expanded_key[(ii-1)*16 +14]^expanded_key[ii*16 +10];
-    		expanded_key[ii*16 +15] = expanded_key[(ii-1)*16 +15]^expanded_key[ii*16 +11];
+    		buf1 = expanded_key[(ii * 16) - 4];
+    		expanded_key[(ii * 16) + 0] = sbox[expanded_key[(ii * 16) - 3]] ^ 
+			expanded_key[((ii - 1) * 16) + 0] ^rcon[ii];
+    		expanded_key[(ii * 16) + 1] = sbox[expanded_key[(ii * 16) - 2]] ^ 
+			expanded_key[((ii - 1) * 16) + 1];
+   	 	expanded_key[(ii * 16) + 2] = sbox[expanded_key[(ii * 16) - 1]] ^ 
+			expanded_key[((ii - 1) * 16) + 2];
+    		expanded_key[(ii * 16) + 3] = sbox[buf1] ^ expanded_key[((ii - 1) * 16) + 3];
+    		expanded_key[(ii * 16) + 4] = expanded_key[((ii - 1) * 16) + 4] ^
+			expanded_key[(ii * 16) + 0];
+    		expanded_key[(ii * 16) + 5] = expanded_key[((ii - 1) * 16) + 5] ^
+			expanded_key[(ii * 16) + 1];
+    		expanded_key[(ii * 16) + 6] = expanded_key[((ii - 1) * 16) + 6] ^
+			expanded_key[(ii * 16) + 2];
+    		expanded_key[(ii * 16) + 7] = expanded_key[((ii - 1) * 16) + 7] ^
+			expanded_key[(ii * 16) + 3];
+    		expanded_key[(ii * 16) + 8] = expanded_key[((ii - 1) * 16) + 8] ^
+			expanded_key[(ii * 16) + 4];
+    		expanded_key[(ii * 16) + 9] = expanded_key[((ii - 1) * 16) + 9] ^
+			expanded_key[(ii * 16) + 5];
+    		expanded_key[(ii * 16) +10] = expanded_key[((ii - 1) * 16) +10] ^
+			expanded_key[(ii * 16) + 6];
+    		expanded_key[(ii * 16) +11] = expanded_key[((ii - 1) * 16) +11] ^
+			expanded_key[(ii * 16) + 7];
+    		expanded_key[(ii * 16) +12] = expanded_key[((ii - 1) * 16) +12] ^
+			expanded_key[(ii * 16) + 8];
+    		expanded_key[(ii * 16) +13] = expanded_key[((ii - 1) * 16) +13] ^
+			expanded_key[(ii * 16) + 9];
+    		expanded_key[(ii * 16) +14] = expanded_key[((ii - 1) * 16) +14] ^
+			expanded_key[(ii * 16) +10];
+    		expanded_key[(ii * 16) +15] = expanded_key[((ii - 1) * 16) +15] ^
+			expanded_key[(ii * 16) +11];
   	}
 }
 
 // multiply by 2 over the galois field
-unsigned char galois_mul2 (unsigned char value)
+unsigned char galois_mul2(unsigned char value)
 {
-	if (value>>7)
-	{
+	if (value >> 7) {
 		value = value << 1;
-		return (value^0x1b);
+		return (value ^ 0x1b);
 	} 
-	else
-	{
+	else {
 		return value << 1;
 	}
 }
 
-void aes_encr ( unsigned char *state, unsigned char *expanded_key )
+void aes_encr(unsigned char *state, unsigned char *expanded_key)
 {
-  unsigned char buf1, buf2, buf3, round;
+	unsigned char buf1, buf2, buf3, round;
     
-  for (round = 0; round < 9; round ++)
-  {
-    // addroundkey, sbox and shiftrows
-    // row 0
-    state[ 0]  = sbox[(state[ 0] ^ expanded_key[(round*16)     ])];
-    state[ 4]  = sbox[(state[ 4] ^ expanded_key[(round*16) +  4])];
-    state[ 8]  = sbox[(state[ 8] ^ expanded_key[(round*16) +  8])];
-    state[12]  = sbox[(state[12] ^ expanded_key[(round*16) + 12])];
-    // row 1
-    buf1 = state[1] ^ expanded_key[(round*16) + 1];
-    state[ 1]  = sbox[(state[ 5] ^ expanded_key[(round*16) +  5])];
-    state[ 5]  = sbox[(state[ 9] ^ expanded_key[(round*16) +  9])];
-    state[ 9]  = sbox[(state[13] ^ expanded_key[(round*16) + 13])];
-    state[13]  = sbox[buf1];
-    // row 2
-    buf1 = state[2] ^ expanded_key[(round*16) + 2];
-    buf2 = state[6] ^ expanded_key[(round*16) + 6];
-    state[ 2]  = sbox[(state[10] ^ expanded_key[(round*16) + 10])];
-    state[ 6]  = sbox[(state[14] ^ expanded_key[(round*16) + 14])];
-    state[10]  = sbox[buf1];
-    state[14]  = sbox[buf2];
-    // row 3
-    buf1 = state[15] ^ expanded_key[(round*16) + 15];
-    state[15]  = sbox[(state[11] ^ expanded_key[(round*16) + 11])];
-    state[11]  = sbox[(state[ 7] ^ expanded_key[(round*16) +  7])];
-    state[ 7]  = sbox[(state[ 3] ^ expanded_key[(round*16) +  3])];
-    state[ 3]  = sbox[buf1];
-    
-    // mixcolums //////////
-    // col1
-    buf1 = state[0] ^ state[1] ^ state[2] ^ state[3];
-    buf2 = state[0];
-    buf3 = state[0]^state[1]; buf3=galois_mul2(buf3); state[0] = state[0] ^ buf3 ^ buf1;
-    buf3 = state[1]^state[2]; buf3=galois_mul2(buf3); state[1] = state[1] ^ buf3 ^ buf1;
-    buf3 = state[2]^state[3]; buf3=galois_mul2(buf3); state[2] = state[2] ^ buf3 ^ buf1;
-    buf3 = state[3]^buf2;     buf3=galois_mul2(buf3); state[3] = state[3] ^ buf3 ^ buf1;
-    // col2
-    buf1 = state[4] ^ state[5] ^ state[6] ^ state[7];
-    buf2 = state[4];
-    buf3 = state[4]^state[5]; buf3=galois_mul2(buf3); state[4] = state[4] ^ buf3 ^ buf1;
-    buf3 = state[5]^state[6]; buf3=galois_mul2(buf3); state[5] = state[5] ^ buf3 ^ buf1;
-    buf3 = state[6]^state[7]; buf3=galois_mul2(buf3); state[6] = state[6] ^ buf3 ^ buf1;
-    buf3 = state[7]^buf2;     buf3=galois_mul2(buf3); state[7] = state[7] ^ buf3 ^ buf1;
-    // col3
-    buf1 = state[8] ^ state[9] ^ state[10] ^ state[11];
-    buf2 = state[8];
-    buf3 = state[8]^state[9];   buf3=galois_mul2(buf3); state[8] = state[8] ^ buf3 ^ buf1;
-    buf3 = state[9]^state[10];  buf3=galois_mul2(buf3); state[9] = state[9] ^ buf3 ^ buf1;
-    buf3 = state[10]^state[11]; buf3=galois_mul2(buf3); state[10] = state[10] ^ buf3 ^ buf1;
-    buf3 = state[11]^buf2;      buf3=galois_mul2(buf3); state[11] = state[11] ^ buf3 ^ buf1;
-    // col4
-    buf1 = state[12] ^ state[13] ^ state[14] ^ state[15];
-    buf2 = state[12];
-    buf3 = state[12]^state[13]; buf3=galois_mul2(buf3); state[12] = state[12] ^ buf3 ^ buf1;
-    buf3 = state[13]^state[14]; buf3=galois_mul2(buf3); state[13] = state[13] ^ buf3 ^ buf1;
-    buf3 = state[14]^state[15]; buf3=galois_mul2(buf3); state[14] = state[14] ^ buf3 ^ buf1;
-    buf3 = state[15]^buf2;      buf3=galois_mul2(buf3); state[15] = state[15] ^ buf3 ^ buf1;
-  }
+  	for (round = 0; round < 9; round ++) {
+		// addroundkey, sbox and shiftrows
+		// row 0
+		state[0] = sbox[(state[0] ^ expanded_key[(round * 16)])];
+		state[4] = sbox[(state[4] ^ expanded_key[(round * 16) +  4])];
+		state[8] = sbox[(state[8] ^ expanded_key[(round * 16) +  8])];
+		state[12] = sbox[(state[12] ^ expanded_key[(round * 16) + 12])];
+		// row 1
+		buf1 = state[1] ^ expanded_key[(round * 16) + 1];
+		state[1] = sbox[(state[5] ^ expanded_key[(round * 16) + 5])];
+		state[5] = sbox[(state[9] ^ expanded_key[(round * 16) + 9])];
+		state[9] = sbox[(state[13] ^ expanded_key[(round * 16) + 13])];
+		state[13] = sbox[buf1];
+		// row 2
+		buf1 = state[2] ^ expanded_key[(round * 16) + 2];
+		buf2 = state[6] ^ expanded_key[(round * 16) + 6];
+		state[2] = sbox[(state[10] ^ expanded_key[(round * 16) + 10])];
+		state[6] = sbox[(state[14] ^ expanded_key[(round * 16) + 14])];
+		state[10] = sbox[buf1];
+		state[14] = sbox[buf2];
+		// row 3
+		buf1 = state[15] ^ expanded_key[(round * 16) + 15];
+		state[15] = sbox[(state[11] ^ expanded_key[(round * 16) + 11])];
+		state[11] = sbox[(state[7] ^ expanded_key[(round * 16) +  7])];
+		state[7] = sbox[(state[3] ^ expanded_key[(round * 16) +  3])];
+		state[3] = sbox[buf1];
+	    
+		// mixcolums //////////
+		// col1
+		buf1 = state[0] ^ state[1] ^ state[2] ^ state[3];
+		buf2 = state[0];
+		buf3 = state[0]^state[1]; buf3=galois_mul2(buf3); state[0] = state[0] ^ buf3 ^ buf1;
+		buf3 = state[1]^state[2]; buf3=galois_mul2(buf3); state[1] = state[1] ^ buf3 ^ buf1;
+		buf3 = state[2]^state[3]; buf3=galois_mul2(buf3); state[2] = state[2] ^ buf3 ^ buf1;
+		buf3 = state[3]^buf2;     buf3=galois_mul2(buf3); state[3] = state[3] ^ buf3 ^ buf1;
+		// col2
+		buf1 = state[4] ^ state[5] ^ state[6] ^ state[7];
+		buf2 = state[4];
+		buf3 = state[4]^state[5]; buf3=galois_mul2(buf3); state[4] = state[4] ^ buf3 ^ buf1;
+		buf3 = state[5]^state[6]; buf3=galois_mul2(buf3); state[5] = state[5] ^ buf3 ^ buf1;
+		buf3 = state[6]^state[7]; buf3=galois_mul2(buf3); state[6] = state[6] ^ buf3 ^ buf1;
+		buf3 = state[7]^buf2;     buf3=galois_mul2(buf3); state[7] = state[7] ^ buf3 ^ buf1;
+		// col3
+		buf1 = state[8] ^ state[9] ^ state[10] ^ state[11];
+		buf2 = state[8];
+		buf3 = state[8]^state[9];   buf3=galois_mul2(buf3); state[8] = state[8] ^ buf3 ^ buf1;
+		buf3 = state[9]^state[10];  buf3=galois_mul2(buf3); state[9] = state[9] ^ buf3 ^ buf1;
+		buf3 = state[10]^state[11]; buf3=galois_mul2(buf3); state[10] = state[10] ^ buf3 ^ buf1;
+		buf3 = state[11]^buf2;      buf3=galois_mul2(buf3); state[11] = state[11] ^ buf3 ^ buf1;
+		// col4
+		buf1 = state[12] ^ state[13] ^ state[14] ^ state[15];
+		buf2 = state[12];
+		buf3 = state[12]^state[13]; buf3=galois_mul2(buf3); state[12] = state[12] ^ buf3 ^ buf1;
+		buf3 = state[13]^state[14]; buf3=galois_mul2(buf3); state[13] = state[13] ^ buf3 ^ buf1;
+		buf3 = state[14]^state[15]; buf3=galois_mul2(buf3); state[14] = state[14] ^ buf3 ^ buf1;
+		buf3 = state[15]^buf2;      buf3=galois_mul2(buf3); state[15] = state[15] ^ buf3 ^ buf1;
+  	}
 
-  // 10th round without mixcols
-  state[ 0]  = sbox[(state[ 0] ^ expanded_key[(round*16)     ])];
-  state[ 4]  = sbox[(state[ 4] ^ expanded_key[(round*16) +  4])];
-  state[ 8]  = sbox[(state[ 8] ^ expanded_key[(round*16) +  8])];
-  state[12]  = sbox[(state[12] ^ expanded_key[(round*16) + 12])];
-  // row 1
-  buf1 = state[1] ^ expanded_key[(round*16) + 1];
-  state[ 1]  = sbox[(state[ 5] ^ expanded_key[(round*16) +  5])];
-  state[ 5]  = sbox[(state[ 9] ^ expanded_key[(round*16) +  9])];
-  state[ 9]  = sbox[(state[13] ^ expanded_key[(round*16) + 13])];
-  state[13]  = sbox[buf1];
-  // row 2
-  buf1 = state[2] ^ expanded_key[(round*16) + 2];
-  buf2 = state[6] ^ expanded_key[(round*16) + 6];
-  state[ 2]  = sbox[(state[10] ^ expanded_key[(round*16) + 10])];
-  state[ 6]  = sbox[(state[14] ^ expanded_key[(round*16) + 14])];
-  state[10]  = sbox[buf1];
-  state[14]  = sbox[buf2];
-  // row 3
-  buf1 = state[15] ^ expanded_key[(round*16) + 15];
-  state[15]  = sbox[(state[11] ^ expanded_key[(round*16) + 11])];
-  state[11]  = sbox[(state[ 7] ^ expanded_key[(round*16) +  7])];
-  state[ 7]  = sbox[(state[ 3] ^ expanded_key[(round*16) +  3])];
-  state[ 3]  = sbox[buf1];
-  // last addroundkey
-  state[ 0]^=expanded_key[160];
-  state[ 1]^=expanded_key[161];
-  state[ 2]^=expanded_key[162];
-  state[ 3]^=expanded_key[163];
-  state[ 4]^=expanded_key[164];
-  state[ 5]^=expanded_key[165];
-  state[ 6]^=expanded_key[166];
-  state[ 7]^=expanded_key[167];
-  state[ 8]^=expanded_key[168];
-  state[ 9]^=expanded_key[169];
-  state[10]^=expanded_key[170];
-  state[11]^=expanded_key[171];
-  state[12]^=expanded_key[172];
-  state[13]^=expanded_key[173];
-  state[14]^=expanded_key[174]; 
-  state[15]^=expanded_key[175];
+  	// 10th round without mixcols
+  	state[0] = sbox[(state[0] ^ expanded_key[(round * 16)])];
+  	state[4] = sbox[(state[4] ^ expanded_key[(round * 16) + 4])];
+  	state[8] = sbox[(state[8] ^ expanded_key[(round * 16) + 8])];
+	state[12] = sbox[(state[12] ^ expanded_key[(round * 16) + 12])];
+  	// row 1
+  	buf1 = state[1] ^ expanded_key[(round * 16) + 1];
+  	state[1] = sbox[(state[ 5] ^ expanded_key[(round * 16) + 5])];
+  	state[5] = sbox[(state[ 9] ^ expanded_key[(round * 16) + 9])];
+  	state[9] = sbox[(state[13] ^ expanded_key[(round * 16) + 13])];
+  	state[13] = sbox[buf1];
+  	// row 2
+  	buf1 = state[2] ^ expanded_key[(round * 16) + 2];
+  	buf2 = state[6] ^ expanded_key[(round * 16) + 6];
+  	state[2] = sbox[(state[10] ^ expanded_key[(round * 16) + 10])];
+  	state[6] = sbox[(state[14] ^ expanded_key[(round * 16) + 14])];
+  	state[10] = sbox[buf1];
+  	state[14] = sbox[buf2];
+  	// row 3
+  	buf1 = state[15] ^ expanded_key[(round * 16) + 15];
+  	state[15] = sbox[(state[11] ^ expanded_key[(round * 16) + 11])];
+  	state[11] = sbox[(state[ 7] ^ expanded_key[(round * 16) + 7])];
+  	state[ 7] = sbox[(state[ 3] ^ expanded_key[(round * 16) + 3])];
+  	state[ 3] = sbox[buf1];
+  	// last addroundkey
+  	state[0] ^= expanded_key[160];
+  	state[1] ^= expanded_key[161];
+  	state[2] ^= expanded_key[162];
+  	state[3] ^= expanded_key[163];
+  	state[4] ^= expanded_key[164];
+  	state[5] ^= expanded_key[165];
+  	state[6] ^= expanded_key[166];
+  	state[7] ^= expanded_key[167];
+	state[8] ^= expanded_key[168];
+  	state[9] ^= expanded_key[169];
+  	state[10] ^= expanded_key[170];
+  	state[11] ^= expanded_key[171];
+  	state[12] ^= expanded_key[172];
+  	state[13] ^= expanded_key[173];
+  	state[14] ^= expanded_key[174]; 
+  	state[15] ^= expanded_key[175];
 } 
 
-void aes_decr ( unsigned char *state, unsigned char *expanded_key )
+void aes_decr(unsigned char *state, unsigned char *expanded_key)
 {
-  unsigned char buf1, buf2, buf3;
-  signed char round;
-  round = 9;
+  	unsigned char buf1, buf2, buf3;
+  	signed char round;
+  	round = 9;
    
-  // initial addroundkey
-  state[ 0]^=expanded_key[160];
-  state[ 1]^=expanded_key[161];
-  state[ 2]^=expanded_key[162];
-  state[ 3]^=expanded_key[163];
-  state[ 4]^=expanded_key[164];
-  state[ 5]^=expanded_key[165];
-  state[ 6]^=expanded_key[166];
-  state[ 7]^=expanded_key[167];
-  state[ 8]^=expanded_key[168];
-  state[ 9]^=expanded_key[169];
-  state[10]^=expanded_key[170];
-  state[11]^=expanded_key[171];
-  state[12]^=expanded_key[172];
-  state[13]^=expanded_key[173];
-  state[14]^=expanded_key[174]; 
-  state[15]^=expanded_key[175];
+  	// initial addroundkey
+  	state[ 0]^=expanded_key[160];
+  	state[ 1]^=expanded_key[161];
+  	state[ 2]^=expanded_key[162];
+  	state[ 3]^=expanded_key[163];
+  	state[ 4]^=expanded_key[164];
+  	state[ 5]^=expanded_key[165];
+  	state[ 6]^=expanded_key[166];
+  	state[ 7]^=expanded_key[167];
+  	state[ 8]^=expanded_key[168];
+  	state[ 9]^=expanded_key[169];
+  	state[10]^=expanded_key[170];
+  	state[11]^=expanded_key[171];
+  	state[12]^=expanded_key[172];
+  	state[13]^=expanded_key[173];
+  	state[14]^=expanded_key[174]; 
+  	state[15]^=expanded_key[175];
 
-  // 10th round without mixcols
-  state[ 0]  = rsbox[state[ 0]] ^ expanded_key[(round*16)     ];
-  state[ 4]  = rsbox[state[ 4]] ^ expanded_key[(round*16) +  4];
-  state[ 8]  = rsbox[state[ 8]] ^ expanded_key[(round*16) +  8];
-  state[12]  = rsbox[state[12]] ^ expanded_key[(round*16) + 12];
-  // row 1
-  buf1 =       rsbox[state[13]] ^ expanded_key[(round*16) +  1];
-  state[13]  = rsbox[state[ 9]] ^ expanded_key[(round*16) + 13];
-  state[ 9]  = rsbox[state[ 5]] ^ expanded_key[(round*16) +  9];
-  state[ 5]  = rsbox[state[ 1]] ^ expanded_key[(round*16) +  5];
-  state[ 1]  = buf1;
-  // row 2
-  buf1 =       rsbox[state[ 2]] ^ expanded_key[(round*16) + 10];
-  buf2 =       rsbox[state[ 6]] ^ expanded_key[(round*16) + 14];
-  state[ 2]  = rsbox[state[10]] ^ expanded_key[(round*16) +  2];
-  state[ 6]  = rsbox[state[14]] ^ expanded_key[(round*16) +  6];
-  state[10]  = buf1;
-  state[14]  = buf2;
-  // row 3
-  buf1 =       rsbox[state[ 3]] ^ expanded_key[(round*16) + 15];
-  state[ 3]  = rsbox[state[ 7]] ^ expanded_key[(round*16) +  3];
-  state[ 7]  = rsbox[state[11]] ^ expanded_key[(round*16) +  7];
-  state[11]  = rsbox[state[15]] ^ expanded_key[(round*16) + 11];
-  state[15]  = buf1;
+  	// 10th round without mixcols
+  	state[0] = rsbox[state[0]] ^ expanded_key[(round * 16)];
+  	state[4] = rsbox[state[4]] ^ expanded_key[(round * 16) + 4];
+  	state[8] = rsbox[state[8]] ^ expanded_key[(round * 16) + 8];
+  	state[12] = rsbox[state[12]] ^ expanded_key[(round * 16) + 12];
+  	// row 1
+  	buf1 = rsbox[state[13]] ^ expanded_key[(round * 16) + 1];
+  	state[13] = rsbox[state[ 9]] ^ expanded_key[(round * 16) + 13];
+  	state[9] = rsbox[state[ 5]] ^ expanded_key[(round * 16) + 9];
+  	state[5] = rsbox[state[ 1]] ^ expanded_key[(round * 16) + 5];
+  	state[1] = buf1;
+  	// row 2
+  	buf1 = rsbox[state[2]] ^ expanded_key[(round * 16) + 10];
+  	buf2 = rsbox[state[6]] ^ expanded_key[(round * 16) + 14];
+  	state[2] = rsbox[state[10]] ^ expanded_key[(round * 16) + 2];
+  	state[6] = rsbox[state[14]] ^ expanded_key[(round * 16) + 6];
+  	state[10] = buf1;
+  	state[14] = buf2;
+  	// row 3
+  	buf1 = rsbox[state[ 3]] ^ expanded_key[(round * 16) + 15];
+  	state[3] = rsbox[state[ 7]] ^ expanded_key[(round * 16) + 3];
+  	state[7] = rsbox[state[11]] ^ expanded_key[(round * 16) + 7];
+  	state[11] = rsbox[state[15]] ^ expanded_key[(round * 16) + 11];
+  	state[15] = buf1;
 
-  for (round = 8; round >= 0; round--)
-  {
-    // barreto
-    //col1
-    buf1 = galois_mul2(galois_mul2(state[0]^state[2]));
-    buf2 = galois_mul2(galois_mul2(state[1]^state[3]));
-    state[0] ^= buf1;     state[1] ^= buf2;    state[2] ^= buf1;    state[3] ^= buf2;
-    //col2
-    buf1 = galois_mul2(galois_mul2(state[4]^state[6]));
-    buf2 = galois_mul2(galois_mul2(state[5]^state[7]));
-    state[4] ^= buf1;    state[5] ^= buf2;    state[6] ^= buf1;    state[7] ^= buf2;
-    //col3
-    buf1 = galois_mul2(galois_mul2(state[8]^state[10]));
-    buf2 = galois_mul2(galois_mul2(state[9]^state[11]));
-    state[8] ^= buf1;    state[9] ^= buf2;    state[10] ^= buf1;    state[11] ^= buf2;
-    //col4
-    buf1 = galois_mul2(galois_mul2(state[12]^state[14]));
-    buf2 = galois_mul2(galois_mul2(state[13]^state[15]));
-    state[12] ^= buf1;    state[13] ^= buf2;    state[14] ^= buf1;    state[15] ^= buf2;
-    // mixcolums //////////
-    // col1
-    buf1 = state[0] ^ state[1] ^ state[2] ^ state[3];
-    buf2 = state[0];
-    buf3 = state[0]^state[1]; buf3=galois_mul2(buf3); state[0] = state[0] ^ buf3 ^ buf1;
-    buf3 = state[1]^state[2]; buf3=galois_mul2(buf3); state[1] = state[1] ^ buf3 ^ buf1;
-    buf3 = state[2]^state[3]; buf3=galois_mul2(buf3); state[2] = state[2] ^ buf3 ^ buf1;
-    buf3 = state[3]^buf2;     buf3=galois_mul2(buf3); state[3] = state[3] ^ buf3 ^ buf1;
-    // col2
-    buf1 = state[4] ^ state[5] ^ state[6] ^ state[7];
-    buf2 = state[4];
-    buf3 = state[4]^state[5]; buf3=galois_mul2(buf3); state[4] = state[4] ^ buf3 ^ buf1;
-    buf3 = state[5]^state[6]; buf3=galois_mul2(buf3); state[5] = state[5] ^ buf3 ^ buf1;
-    buf3 = state[6]^state[7]; buf3=galois_mul2(buf3); state[6] = state[6] ^ buf3 ^ buf1;
-    buf3 = state[7]^buf2;     buf3=galois_mul2(buf3); state[7] = state[7] ^ buf3 ^ buf1;
-    // col3
-    buf1 = state[8] ^ state[9] ^ state[10] ^ state[11];
-    buf2 = state[8];
-    buf3 = state[8]^state[9];   buf3=galois_mul2(buf3); state[8] = state[8] ^ buf3 ^ buf1;
-    buf3 = state[9]^state[10];  buf3=galois_mul2(buf3); state[9] = state[9] ^ buf3 ^ buf1;
-    buf3 = state[10]^state[11]; buf3=galois_mul2(buf3); state[10] = state[10] ^ buf3 ^ buf1;
-    buf3 = state[11]^buf2;      buf3=galois_mul2(buf3); state[11] = state[11] ^ buf3 ^ buf1;
-    // col4
-    buf1 = state[12] ^ state[13] ^ state[14] ^ state[15];
-    buf2 = state[12];
-    buf3 = state[12]^state[13]; buf3=galois_mul2(buf3); state[12] = state[12] ^ buf3 ^ buf1;
-    buf3 = state[13]^state[14]; buf3=galois_mul2(buf3); state[13] = state[13] ^ buf3 ^ buf1;
-    buf3 = state[14]^state[15]; buf3=galois_mul2(buf3); state[14] = state[14] ^ buf3 ^ buf1;
-    buf3 = state[15]^buf2;      buf3=galois_mul2(buf3); state[15] = state[15] ^ buf3 ^ buf1;    
+  	for (round = 8; round >= 0; round--) {
+    		// barreto
+    		//col1
+	    	buf1 = galois_mul2(galois_mul2(state[0]^state[2]));
+	    	buf2 = galois_mul2(galois_mul2(state[1]^state[3]));
+	    	state[0] ^= buf1;     state[1] ^= buf2;    state[2] ^= buf1;    state[3] ^= buf2;
+	    	//col2
+	    	buf1 = galois_mul2(galois_mul2(state[4]^state[6]));
+	    	buf2 = galois_mul2(galois_mul2(state[5]^state[7]));
+	    	state[4] ^= buf1;    state[5] ^= buf2;    state[6] ^= buf1;    state[7] ^= buf2;
+	    	//col3
+	    	buf1 = galois_mul2(galois_mul2(state[8]^state[10]));
+	    	buf2 = galois_mul2(galois_mul2(state[9]^state[11]));
+	    	state[8] ^= buf1;    state[9] ^= buf2;    state[10] ^= buf1;    state[11] ^= buf2;
+	    	//col4
+	    	buf1 = galois_mul2(galois_mul2(state[12]^state[14]));
+	    	buf2 = galois_mul2(galois_mul2(state[13]^state[15]));
+	    	state[12] ^= buf1;    state[13] ^= buf2;    state[14] ^= buf1;    state[15] ^= buf2;
+	    	// mixcolums //////////
+	    	// col1
+	    	buf1 = state[0] ^ state[1] ^ state[2] ^ state[3];
+	    	buf2 = state[0];
+	    	buf3 = state[0]^state[1]; buf3=galois_mul2(buf3); state[0] = state[0] ^ buf3 ^ buf1;
+	    	buf3 = state[1]^state[2]; buf3=galois_mul2(buf3); state[1] = state[1] ^ buf3 ^ buf1;
+	    	buf3 = state[2]^state[3]; buf3=galois_mul2(buf3); state[2] = state[2] ^ buf3 ^ buf1;
+	    	buf3 = state[3]^buf2;     buf3=galois_mul2(buf3); state[3] = state[3] ^ buf3 ^ buf1;
+	    	// col2
+	    	buf1 = state[4] ^ state[5] ^ state[6] ^ state[7];
+	    	buf2 = state[4];
+	    	buf3 = state[4]^state[5]; buf3=galois_mul2(buf3); state[4] = state[4] ^ buf3 ^ buf1;
+	    	buf3 = state[5]^state[6]; buf3=galois_mul2(buf3); state[5] = state[5] ^ buf3 ^ buf1;
+	    	buf3 = state[6]^state[7]; buf3=galois_mul2(buf3); state[6] = state[6] ^ buf3 ^ buf1;
+	    	buf3 = state[7]^buf2;     buf3=galois_mul2(buf3); state[7] = state[7] ^ buf3 ^ buf1;
+	    	// col3
+	    	buf1 = state[8] ^ state[9] ^ state[10] ^ state[11];
+	    	buf2 = state[8];
+	    	buf3 = state[8]^state[9];   buf3=galois_mul2(buf3); state[8] = state[8] ^ buf3 ^ buf1;
+	    	buf3 = state[9]^state[10];  buf3=galois_mul2(buf3); state[9] = state[9] ^ buf3 ^ buf1;
+	    	buf3 = state[10]^state[11]; buf3=galois_mul2(buf3); state[10] = state[10] ^ buf3 ^ buf1;
+	    	buf3 = state[11]^buf2;      buf3=galois_mul2(buf3); state[11] = state[11] ^ buf3 ^ buf1;
+	    	// col4
+	    	buf1 = state[12] ^ state[13] ^ state[14] ^ state[15];
+	    	buf2 = state[12];
+	    	buf3 = state[12]^state[13]; buf3=galois_mul2(buf3); state[12] = state[12] ^ buf3 ^ buf1;
+	    	buf3 = state[13]^state[14]; buf3=galois_mul2(buf3); state[13] = state[13] ^ buf3 ^ buf1;
+	    	buf3 = state[14]^state[15]; buf3=galois_mul2(buf3); state[14] = state[14] ^ buf3 ^ buf1;
+	    	buf3 = state[15]^buf2;      buf3=galois_mul2(buf3); state[15] = state[15] ^ buf3 ^ buf1;    
 
-    // addroundkey, rsbox and shiftrows
-    // row 0
-    state[ 0]  = rsbox[state[ 0]] ^ expanded_key[(round*16)     ];
-    state[ 4]  = rsbox[state[ 4]] ^ expanded_key[(round*16) +  4];
-    state[ 8]  = rsbox[state[ 8]] ^ expanded_key[(round*16) +  8];
-    state[12]  = rsbox[state[12]] ^ expanded_key[(round*16) + 12];
-    // row 1
-    buf1 =       rsbox[state[13]] ^ expanded_key[(round*16) +  1];
-    state[13]  = rsbox[state[ 9]] ^ expanded_key[(round*16) + 13];
-    state[ 9]  = rsbox[state[ 5]] ^ expanded_key[(round*16) +  9];
-    state[ 5]  = rsbox[state[ 1]] ^ expanded_key[(round*16) +  5];
-    state[ 1]  = buf1;
-    // row 2
-    buf1 =       rsbox[state[ 2]] ^ expanded_key[(round*16) + 10];
-    buf2 =       rsbox[state[ 6]] ^ expanded_key[(round*16) + 14];
-    state[ 2]  = rsbox[state[10]] ^ expanded_key[(round*16) +  2];
-    state[ 6]  = rsbox[state[14]] ^ expanded_key[(round*16) +  6];
-    state[10]  = buf1;
-    state[14]  = buf2;
-    // row 3
-    buf1 =       rsbox[state[ 3]] ^ expanded_key[(round*16) + 15];
-    state[ 3]  = rsbox[state[ 7]] ^ expanded_key[(round*16) +  3];
-    state[ 7]  = rsbox[state[11]] ^ expanded_key[(round*16) +  7];
-    state[11]  = rsbox[state[15]] ^ expanded_key[(round*16) + 11];
-    state[15]  = buf1;
-  }
+	    	// addroundkey, rsbox and shiftrows
+	    	// row 0
+	    	state[0] = rsbox[state[0]] ^ expanded_key[(round * 16)];
+	    	state[4] = rsbox[state[4]] ^ expanded_key[(round * 16) + 4];
+	    	state[8] = rsbox[state[8]] ^ expanded_key[(round * 16) + 8];
+	    	state[12] = rsbox[state[12]] ^ expanded_key[(round * 16) + 12];
+	    	// row 1
+	    	buf1 = rsbox[state[13]] ^ expanded_key[(round * 16) + 1];
+	    	state[13] = rsbox[state[9]] ^ expanded_key[(round * 16) + 13];
+	    	state[9] = rsbox[state[5]] ^ expanded_key[(round * 16) + 9];
+	    	state[5] = rsbox[state[1]] ^ expanded_key[(round * 16) + 5];
+	    	state[1] = buf1;
+	    	// row 2
+	    	buf1 = rsbox[state[2]] ^ expanded_key[(round * 16) + 10];
+	    	buf2 = rsbox[state[6]] ^ expanded_key[(round * 16) + 14];
+	    	state[2] = rsbox[state[10]] ^ expanded_key[(round * 16) + 2];
+	    	state[6] = rsbox[state[14]] ^ expanded_key[(round * 16) + 6];
+	    	state[10] = buf1;
+	    	state[14] = buf2;
+	    	// row 3
+	    	buf1 = rsbox[state[3]] ^ expanded_key[(round * 16) + 15];
+	    	state[3] = rsbox[state[7]] ^ expanded_key[(round * 16) + 3];
+	    	state[7] = rsbox[state[11]] ^ expanded_key[(round * 16) + 7];
+	    	state[11] = rsbox[state[15]] ^ expanded_key[(round * 16) + 11];
+	    	state[15] = buf1;
+  	}
 } 
 
 /* encrypt */
-void aes_encrypt ( unsigned char *state, unsigned char *key )
+void aes_encrypt(unsigned char *state, unsigned char *key)
 {
 	unsigned char expanded_key[176];
 
@@ -342,11 +353,11 @@ void aes_encrypt ( unsigned char *state, unsigned char *key )
 }
 
 /* decrypt */
-void aes_decrypt ( unsigned char *state, unsigned char *key )
+void aes_decrypt(unsigned char *state, unsigned char *key)
 {
     	unsigned char expanded_key[176];
 
-	/* expand the key into 176 bytes
+	/* expand the key into 176 byte */
     	expand_key(expanded_key, key);          
     	aes_decr(state, expanded_key);
 }
