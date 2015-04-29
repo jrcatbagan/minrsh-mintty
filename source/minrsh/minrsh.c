@@ -119,16 +119,16 @@ int main(int argc, char **argv)
                 exit(1);
         }
 
-	/* start of test code */
-        char buffer[] = "hello server";
+	/* communication initiation sequence */
+        unsigned char buffer[] = {0x55, 0xAA, 0x55, 0xAA};
 
         ssize_t bytes_written = write(serverfd, buffer, sizeof(buffer));
         if(bytes_written == 0 || bytes_written == -1) {
                 fprintf(stderr, "no data to send\n");
                 exit(1);
         }
-        fprintf(stdout, "data sent\n");
-	/* end of test code */
+
+	close(serverfd);
 
         exit(0);
 }

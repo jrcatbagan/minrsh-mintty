@@ -5,7 +5,7 @@
  *
  * BSD License
  *
- * Copyright (c) 2014, Jarielle Catbagan <jrcatbagan@ca.rr.com>
+ * Copyright (c) 2015, Jarielle Catbagan <jrcatbagan@ca.rr.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,21 +133,39 @@ int main(int argc, char **argv)
                 exit(1);
         }
 
-	/* start of test code */
         int clientfd;
         struct sockaddr_in clientname;
 	int size = sizeof(clientname);
         clientfd = accept(serverfd, (struct sockaddr *) &clientname, &size);
 			  
-        
-        char buffer[100];
+        unsigned char buffer[100];
         ssize_t bytes_read = read(clientfd, buffer, sizeof(buffer));
         if(bytes_read == 0 || bytes_read == -1) {
                 fprintf(stdout, "no client data\n");
                 exit(1);
         }
-        fprintf(stdout, "from client: %s\n", buffer);
-	/* end of test code */
+	
+	enum flag_t cominvalid_flag = NOT_SET;
 
+	int i;
+	for (i = 0; i < bytes_read; i++) {
+		printf("%x\n", buffer[i]);
+        	if (i % 2) {
+			if (!(buffer[i] == 0xAA))
+				cominvalid_flag = SET;
+		}
+		else {
+			if (!(buffer[i] == 0x55))
+				cominvalid_flag = SET;
+		}
+	}
+
+	if (cominvalid_flag == SET)
+		printf("client connected; invalid communication initiation sequence\n");
+	else
+		printf("client connected; valid communication initiation sequence\n");
+
+	close(serverfd);
+	close(clientfd);
         exit(0);
 }
