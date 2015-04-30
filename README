@@ -1,0 +1,11 @@
+This project contains a simple implementation of an application layer protocol providing a user
+with remote shell access.  There are three main programs that are of main interest.  The first is
+minrsh which is the backend client, minrshd which is the server program, and mintty is a GUI 
+implemented in Qt C++ encapsulating the backend client.
+
+In a general sense, minrsh refers to the application layer protocol.  Aside from providing users 
+with remote shell access, it also encrypts communications using AES-128.  minrsh is also referred 
+to as the client program.
+
+The main motivation for this project was to understand the fundamentals of application layer
+protocols in TCP/IP networking.
