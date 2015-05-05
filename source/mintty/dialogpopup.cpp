@@ -14,7 +14,18 @@ DialogPopup::~DialogPopup()
 }
 
 // Popup window
-void DialogPopup::on_lineEdit_editingFinished()
+void DialogPopup::on_textBrowser_textChanged()
 {
 
+}
+
+void DialogPopup::on_lineEdit_returnPressed()
+{
+    QString pin = "";
+    QString id = "";
+
+    people *personType;
+
+    id = lineEditID->text();
+    pin = lineEditPin->();
 }

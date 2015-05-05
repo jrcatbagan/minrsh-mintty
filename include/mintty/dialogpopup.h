@@ -16,7 +16,11 @@ public:
     ~DialogPopup();
 
 private slots:
-    void on_lineEdit_editingFinished();
+    //void on_lineEdit_editingFinished();
+
+    void on_textBrowser_textChanged();
+
+    void on_lineEdit_returnPressed();
 
 private:
     Ui::DialogPopup *ui;
