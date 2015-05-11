@@ -1,5 +1,5 @@
 /*
- * File: server.c
+ * File: minrshd.c
  * Created: 2014, November 09
  *
  *
@@ -36,6 +36,7 @@
 #include <getopt.h>
 #include <netinet/in.h>
 
+#include <core/minrshd.h>
 #include <common/network.h>
 
 int main(int argc, char **argv)
