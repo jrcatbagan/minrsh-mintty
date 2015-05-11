@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QString>
+#include <QTcpSocket>
 
 namespace Ui {
 class terminal;
@@ -21,6 +22,7 @@ private slots:
 public:
     explicit terminal(QWidget *parent = 0);
     ~terminal();
+    QTcpSocket *serversock;
 
 private:
     Ui::terminal *ui;

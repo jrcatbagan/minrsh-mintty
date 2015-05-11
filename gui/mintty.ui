@@ -265,6 +265,20 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>le_ipaddress</tabstop>
+  <tabstop>le_port</tabstop>
+  <tabstop>btn_connect</tabstop>
+  <tabstop>pushButton_Cancel</tabstop>
+  <tabstop>radioButton_Only</tabstop>
+  <tabstop>radioButton_Always</tabstop>
+  <tabstop>pushButton_Load</tabstop>
+  <tabstop>radioButton_Never</tabstop>
+  <tabstop>pushButton__Delete</tabstop>
+  <tabstop>pushButton_Save</tabstop>
+  <tabstop>lineEdit_Setting</tabstop>
+  <tabstop>lineEdit_Serverline</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
