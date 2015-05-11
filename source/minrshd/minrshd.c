@@ -48,18 +48,6 @@ int main(int argc, char **argv)
 	int retoption;
 	char *port_literal, *ipaddr_literal;
 
-
-	/*
-	 * elaborating valid options/arguments
-	 */
-	struct option long_options[] = {
-		{"help", no_argument, NULL, 'h'},
-		{"ip-address", required_argument, NULL, 'i'},
-		{"port", required_argument, NULL, 'p'},
-		{0, 0, 0, 0}
-	};
-
-
 	/* 
 	 * disable getopt_long from printing error messages 
 	 */

@@ -33,6 +33,14 @@
 #ifndef MINRSHD_H
 #define MINRSHD_H
 
-
+/*
+ * elaborating valid options/arguments
+ */
+struct option long_options[] = {
+	{"help", no_argument, NULL, 'h'},
+	{"ip-address", required_argument, NULL, 'i'},
+	{"port", required_argument, NULL, 'p'},
+	{0, 0, 0, 0}
+};
 
 #endif /* MINRSHD_H */
