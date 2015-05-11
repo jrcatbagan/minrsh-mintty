@@ -1,6 +1,6 @@
 /*
  * File: server.c
- * Created: 09, November 2014
+ * Created: 2014, November 09
  *
  *
  * BSD License
