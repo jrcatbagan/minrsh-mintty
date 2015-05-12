@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <netinet/in.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include <core/minrshd.h>
 #include <common/network.h>
@@ -47,18 +49,6 @@ int main(int argc, char **argv)
 
 	int retoption;
 	char *port_literal, *ipaddr_literal;
-
-
-	/*
-	 * elaborating valid options/arguments
-	 */
-	struct option long_options[] = {
-		{"help", no_argument, NULL, 'h'},
-		{"ip-address", required_argument, NULL, 'i'},
-		{"port", required_argument, NULL, 'p'},
-		{0, 0, 0, 0}
-	};
-
 
 	/* 
 	 * disable getopt_long from printing error messages 
@@ -165,6 +155,15 @@ int main(int argc, char **argv)
 		printf("client connected; invalid communication initiation sequence\n");
 	else
 		printf("client connected; valid communication initiation sequence\n");
+
+	bool done_state = false;
+	while (!done_state) {
+		bzero(buffer, sizeof(buffer));
+		bytes_read = read(clientfd, buffer, sizeof(buffer));
+
+		if (!strcmp(buffer, "exit"))
+			done_state = true;
+	}
 
 	close(serverfd);
 	close(clientfd);
