@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <netinet/in.h>
+#include <stdbool.h>
+#include <string.h>
 
 #include <core/minrshd.h>
 #include <common/network.h>
@@ -153,6 +155,15 @@ int main(int argc, char **argv)
 		printf("client connected; invalid communication initiation sequence\n");
 	else
 		printf("client connected; valid communication initiation sequence\n");
+
+	bool done_state = false;
+	while (!done_state) {
+		bzero(buffer, sizeof(buffer));
+		bytes_read = read(clientfd, buffer, sizeof(buffer));
+
+		if (!strcmp(buffer, "exit"))
+			done_state = true;
+	}
 
 	close(serverfd);
 	close(clientfd);
