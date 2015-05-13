@@ -1,3 +1,10 @@
+//
+// File: terminal.h
+// Date: 2015, May 09
+//
+// Copyright (C) 2015, Irene Cho <irenechoster@gmail.com>
+// Copyright (C) 2015, Jarielle Catbagan <jrcatbagan@ca.rr.com>
+
 #ifndef TERMINAL_H
 #define TERMINAL_H
 

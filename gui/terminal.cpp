@@ -2,8 +2,8 @@
 // File: terminal.cpp
 // Date: 2015, May 09
 //
-// Copyright (C) 2015 AlphaGroup
-//
+// Copyright (C) 2015, Irene Cho <irenechoster@gmail.com>
+// Copyright (C) 2015, Jarielle Catbagan <jrcatbagan@ca.rr.com>
 
 #include "terminal.h"
 #include "ui_terminal.h"
@@ -37,17 +37,11 @@ void terminal::establish_comm(QString ipaddressliteral, QString portliteral)
 {
     QHostAddress ipaddress(ipaddressliteral);
     quint16 port = portliteral.toLongLong();
-    QString initialmessage = "mintty is now connected";
-    QByteArray data = initialmessage.toUtf8();
-
-#ifdef DEBUG
-    cout << "data: ";
-    for(int i = 0; i < data.size(); i++)
-        cout << data.at(i);
-    cout << endl;
-
-    cout << "data size: " << data.size() << endl;
-#endif // DEBUG
+    QByteArray data;
+    data.append(0x55);
+    data.append(0xAA);
+    data.append(0x55);
+    data.append(0xAA);
 
     serversock = new QTcpSocket;
 
@@ -74,8 +68,10 @@ void terminal::on_le_command_returnPressed()
     message = this->ui->le_command->text();
 
     if (!message.compare("exit")) {
-        QApplication::quit();
+        serversock->write(message.toUtf8());
+        serversock->waitForBytesWritten();
         serversock->close();
+        QApplication::quit();
     }
 
     buffer.append(message);
