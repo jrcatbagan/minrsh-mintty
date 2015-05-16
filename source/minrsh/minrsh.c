@@ -1,6 +1,6 @@
 /*
- * File: client.c
- * Created: 09, November 2014
+ * File: minrsh.c
+ * Created: 2014, November 09
  *
  *
  * BSD License
@@ -36,8 +36,11 @@
 #include <getopt.h>
 #include <stdbool.h>
 #include <netinet/in.h>
+#include <string.h>
 
 #include <common/network.h>
+#include <common/util.h>
+#include <crypt/aes.h>
 
 int main(int argc, char **argv) 
 {
@@ -130,13 +133,31 @@ int main(int argc, char **argv)
 
 	bool done_state = false;
 
+	unsigned char key[] = 
+	{
+		0x00, 0x11, 0x22, 0x33,
+		0x44, 0x55, 0x66, 0x77,
+		0x88, 0x99, 0xAA, 0xBB,
+		0xCC, 0xDD, 0xEE, 0xFF
+	};
+
 	while (!done_state) {
 		bytes_read = getline(&inbuffer, &n, stdin);
 		
 		n = bytes_read - 1;
 		inbuffer[n] = '\0';
+	
+		char message[16];
+		bzero(message, sizeof(message));
+		strcpy(message, inbuffer);
 
-		bytes_written = write(serverfd, inbuffer, n);
+		debug("invoking aes_encrypt()\n");
+		aes_encrypt(message, key);
+		debug("aes_encrypt() finished\n");
+
+		debug("writing data via write()\n");
+		bytes_written = write(serverfd, message, 16);
+		debug("data written via write()\n");
 
 		if(!strcmp(inbuffer, "exit"))
 			done_state = true;

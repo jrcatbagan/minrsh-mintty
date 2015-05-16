@@ -1,6 +1,6 @@
 /*
  * File: network.h
- * Created: 07, November 2014
+ * Created: 2014, November 07
  *
  *
  * BSD License

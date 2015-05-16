@@ -40,6 +40,8 @@
 
 #include <core/minrshd.h>
 #include <common/network.h>
+#include <common/util.h>
+#include <crypt/aes.h>
 
 int main(int argc, char **argv)
 {
@@ -156,12 +158,31 @@ int main(int argc, char **argv)
 	else
 		printf("client connected; valid communication initiation sequence\n");
 
+	unsigned char key[] =
+	{
+		0x00, 0x11, 0x22, 0x33,
+		0x44, 0x55, 0x66, 0x77,
+		0x88, 0x99, 0xAA, 0xBB,
+		0xCC, 0xDD, 0xEE, 0xFF
+	};
+
 	bool done_state = false;
 	while (!done_state) {
 		bzero(buffer, sizeof(buffer));
-		bytes_read = read(clientfd, buffer, sizeof(buffer));
+		
+		bytes_read = read(clientfd, buffer, 16);
+		debug("%d bytes read via read()\n", bytes_read);
 
-		if (!strcmp(buffer, "exit"))
+		char message[16];
+		strncpy(message, buffer, bytes_read);
+
+		debug("invoking aes_decrypt()\n");
+		aes_decrypt(message, key);
+		debug("aes_decrypt() finished\n");
+
+		debug("data received: %s\n", message);
+
+		if (!strcmp(message, "exit"))
 			done_state = true;
 	}
 
