@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <stdbool.h>
 #include <netinet/in.h>
 
 #include <common/network.h>
@@ -123,10 +124,24 @@ int main(int argc, char **argv)
         unsigned char buffer[] = {0x55, 0xAA, 0x55, 0xAA};
 
         ssize_t bytes_written = write(serverfd, buffer, sizeof(buffer));
-        if(bytes_written == 0 || bytes_written == -1) {
-                fprintf(stderr, "no data to send\n");
-                exit(1);
-        }
+        ssize_t bytes_read;
+	char *inbuffer = NULL;
+	size_t n = 0;
+
+	bool done_state = false;
+
+	while (!done_state) {
+		bytes_read = getline(&inbuffer, &n, stdin);
+		
+		n = bytes_read - 1;
+		inbuffer[n] = '\0';
+
+		bytes_written = write(serverfd, inbuffer, n);
+
+		if(!strcmp(inbuffer, "exit"))
+			done_state = true;
+	}
+
 
 	close(serverfd);
 
