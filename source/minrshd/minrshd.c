@@ -114,13 +114,25 @@ int main(int argc, char **argv)
 			done_state = true;
 		}
 		else {
-			if (!strcmp(message, "cd")) {
-				/* need to fix this to extract the path from the 
-				 * message received, if it exists, and then to 
-				 * change to that path or to perform the default 
-				 * behavior 
-				 */
-				debug("cd entered\n");
+			if (strstr(message, "cd")) {
+				size_t str_length = strlen(message);
+				if (str_length == 2 || str_length == 3) {
+					/* need to fix this to actually change to the user's
+					 * home directory that is using an instance of minrshd
+					 */
+					chdir("/home/jrcatbagan");
+					debug("changing to hard-coded directory /home/jrcatbagan\n");
+				}
+				else {
+					size_t arg_length = str_length - 3;
+					char *argument = malloc(arg_length * sizeof(*argument));
+					strcpy(argument, message + 3);
+					debug("cd entered\n");
+					debug("argument: %s - message: %s - argument length: %d\n",
+							argument, message, arg_length);
+					chdir(argument);
+					free(argument);
+				}
 			}
 			else {
 				FILE *command_pipe = popen(message, "r");
