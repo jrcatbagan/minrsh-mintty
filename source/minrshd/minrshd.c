@@ -31,15 +31,16 @@
  */
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
 #include <getopt.h>
 #include <netinet/in.h>
-#include <stdbool.h>
 #include <string.h>
 
-#include <core/minrshd.h>
 #include <common/network.h>
+#include <common/options.h>
+#include <common/defines.h>
 #include <common/util.h>
 #include <crypt/aes.h>
 #include <crypt/key.h>
@@ -47,81 +48,17 @@
 int main(int argc, char **argv)
 {
         int serverfd;
-	uint16_t port;
-	const char *ip_address;
 
-	int retoption;
-	char *port_literal, *ipaddr_literal;
+	struct net_info_t net_info;
 
-	/* 
-	 * disable getopt_long from printing error messages 
-	 */
-	opterr = 0;
-
-	enum flag_t {NOT_SET = 0, SET} h_flag, i_flag, p_flag, err_flag;
-	h_flag = i_flag = p_flag = err_flag = NOT_SET;
-
-
-	/*
-	 * handle options and arguemtns 
-	 */
-	while((retoption = getopt_long(argc, argv, "hi:p:", long_options, NULL)) != -1) {
-		switch(retoption) {
-		case 'h':
-			h_flag = SET;
-			break;
-		case 'i':
-			i_flag = SET;
-			ipaddr_literal = optarg;
-			break;
-		case 'p':
-			p_flag = SET;
-			port_literal = optarg;
-			break;
-		default: /* '?' returned from getopt_long() */
-			err_flag = SET;
-			break;
-		}
+	enum flag_t err_flag = extract_options(&net_info, argc, argv);
+	if (err_flag == SET) {
+		fprintf(stderr, "error: options extraction failed\n");
+		exit(EXIT_FAILURE);
 	}
 
-	if((h_flag == SET && p_flag == SET) || err_flag == SET) {
-		if(h_flag == SET && p_flag == SET) {
-			fprintf(stderr, "error: options 'h' and 'p' must not be ");
-			fprintf(stderr, "specified together\n");
-		}
-		if(err_flag == SET) 
-			fprintf(stderr, "error: invalid option specified\n");
-
-		exit(1);	
-	}
-	else if(h_flag == SET) {
-		fprintf(stdout, "usage: %s [options]\n\n"
-				"\t-h --help\tdisplay help\n"
-				"\t-i --ip-address\tspecify ip address\n"
-				"\t-p --port\tspecify port to listen on\n", argv[0]);
-		exit(0);
-	}
-	else if(i_flag == NOT_SET && p_flag == NOT_SET) {
-		fprintf(stderr, "error: no options specified\n");
-		exit(1);
-	}
-	else if(i_flag == NOT_SET && p_flag == SET) {
-		fprintf(stderr, "error: ip address to connect to was not specified\n");
-		exit(1);
-	}
-	else if(i_flag == SET && p_flag == NOT_SET) {
-		fprintf(stderr, "error: port to connect to was not specified\n");
-		exit(1);
-	}
-	else { /* i_flag == SET && p_flag == SET */
-		ip_address = ipaddr_literal;
-		port = (uint16_t) atoi(port_literal);
-	}
-
-	/*
-	 * set up server
-	 */
-        int retval = initserver(&serverfd, ip_address, port);
+	/* set up the server */
+        int retval = initserver(&serverfd, net_info.ip_address, net_info.port);
         if(retval == -1) {
                 fprintf(stderr, "error: server initiation failed\n");
                 exit(1);

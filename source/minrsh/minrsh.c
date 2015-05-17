@@ -31,10 +31,10 @@
  */
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <getopt.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <getopt.h>
 #include <netinet/in.h>
 #include <string.h>
 
@@ -57,6 +57,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	/* set up the client */
         int retval = initclient(&serverfd, net_info.ip_address, net_info.port);
         if(retval == -1) {
                 fprintf(stderr, "error: server connection failed\n");
