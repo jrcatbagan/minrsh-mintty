@@ -17,14 +17,20 @@ default:
 	@echo -e "error: no target(s) specified\n"
 	@echo -e "specify target 'help' to see supported targets"
 all: minrshd minrsh
+# all executables built are manually placed in 'build'; not really elegant, so
+# when time permits, find a better solution
 minrshd: $(MINRSHDDIR)/minrshd.c $(COMMONDIR)/network.c \
 		$(COMMONDIR)/options.c $(CRYPTDIR)/aes.c $(COREDIR)/comminit.c
 	gcc -o minrshd $^ $(CCFLAGS) $(ECCFLAGS)
+	@mv $@ build
 minrsh: $(MINRSHDIR)/minrsh.c $(COMMONDIR)/network.c $(COMMONDIR)/options.c \
 		$(CRYPTDIR)/aes.c $(COREDIR)/comminit.c
 	gcc -o minrsh $^ $(CCFLAGS) $(ECCFLAGS)
+	@mv $@ build
 clean:
-	rm -f minrsh minrshd
+# current approach must take care that 'build' is not deleted; must find a more
+# elegant solution
+	rm -f build/*
 help:
 	@echo -e "targets supported:\n"
 	@echo -e "\tminrsh: \tclient program"

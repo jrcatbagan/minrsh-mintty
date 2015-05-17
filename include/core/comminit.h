@@ -34,6 +34,7 @@
 #define COMMINIT_H
 
 int verify_client_initiation(int clientfd);
+void send_client_initiation(int serverfd);
 int verify_server_initiation(int serverfd);
 
 #endif /* COMMINIT_H */

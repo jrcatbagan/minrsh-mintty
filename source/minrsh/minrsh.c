@@ -48,8 +48,13 @@
 int main(int argc, char **argv) 
 {
         int serverfd;
-
 	struct net_info_t net_info;
+	ssize_t bytes_read, bytes_written;
+	char *command = NULL;
+	size_t command_length = 0;
+
+
+	bool done_state = false;
 
 	enum flag_t err_flag = extract_options(&net_info, argc, argv);
 	if (err_flag == SET) {
@@ -64,18 +69,12 @@ int main(int argc, char **argv)
                 exit(1);
         }
 
-	/* communication initiation sequence */
-        unsigned char buffer[] = {0x55, 0xAA, 0x55, 0xAA};
-
-        ssize_t bytes_written = write(serverfd, buffer, sizeof(buffer));
-        ssize_t bytes_read;
-	char *command = NULL;
-	size_t n = 0;
-
-	bool done_state = false;
+	/* send initial communication sequence to server */
+	send_client_initiation(serverfd);
+        
 
 	while (!done_state) {
-		bytes_read = getline(&command, &n, stdin);
+		bytes_read = getline(&command, &command_length, stdin);
 
 		char message[16];
 		bzero(message, sizeof(message));

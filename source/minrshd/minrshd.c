@@ -49,8 +49,10 @@
 int main(int argc, char **argv)
 {
         int serverfd;
-
 	struct net_info_t net_info;
+	ssize_t bytes_read, bytes_written;
+	bool done_state = false;
+	char message[16];
 
 	enum flag_t err_flag = extract_options(&net_info, argc, argv);
 	if (err_flag == SET) {
@@ -72,16 +74,15 @@ int main(int argc, char **argv)
 			  
 	if (verify_client_initiation(clientfd) == -1) {
 		fprintf(stderr, "error: invalid client initiation\n");
+		close(clientfd);
+		close(serverfd);
 		exit(EXIT_FAILURE);
 	}
 	else {
 		fprintf(stdout, "valid client initiation\n");
 	}
 
-	ssize_t bytes_read;
-	bool done_state = false;
 	while (!done_state) {
-		char message[16];
 		bzero(message, sizeof(message));
 		bytes_read = read(clientfd, message, 16);
 		debug("%d bytes read via read()\n", bytes_read);

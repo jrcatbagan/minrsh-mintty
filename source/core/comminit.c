@@ -59,3 +59,12 @@ int verify_client_initiation(int clientfd)
 	else
 		return 0;
 }
+
+void send_client_initiation(int serverfd)
+{
+	/* client communication initiation sequence */
+	unsigned char client_initiation_sequence[] = {0x55, 0xAA, 0x55, 0xAA};
+        
+	ssize_t bytes_written = write(serverfd, client_initiation_sequence, 
+			sizeof(client_initiation_sequence));
+}
