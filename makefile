@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2015 Jarielle Catbagan
 
-.PHONY: default clean help
+.PHONY: default all clean help
 
 MINRSHDIR	= $(PWD)/source/minrsh
 MINRSHDDIR 	= $(PWD)/source/minrshd
@@ -15,6 +15,7 @@ CCFLAGS		= -isystem $(PWD)/include
 default:
 	@echo -e "error: no target(s) specified\n"
 	@echo -e "specify target 'help' to see supported targets"
+all: minrshd minrsh
 minrshd: $(MINRSHDDIR)/minrshd.c $(COMMONDIR)/network.c \
 	$(COMMONDIR)/options.c $(CRYPTDIR)/aes.c 
 	gcc -o minrshd $^ $(CCFLAGS) $(ECCFLAGS)

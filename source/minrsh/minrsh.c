@@ -84,6 +84,8 @@ int main(int argc, char **argv)
 		bzero(message, sizeof(message));
 		strcpy(message, inbuffer);
 
+		debug("command entered: %s\n", message);
+
 		debug("invoking aes_encrypt()\n");
 		aes_encrypt(message, key);
 		debug("aes_encrypt() finished\n");

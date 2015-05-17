@@ -112,8 +112,28 @@ int main(int argc, char **argv)
 
 		debug("data received: %s\n", message);
 
-		if (!strcmp(message, "exit"))
+		if (!strcmp(message, "exit")) {
 			done_state = true;
+		}
+		else {
+			char command[60];
+			bzero(command, sizeof(command));
+			strcpy(command, "bash -c ");
+			strcat(command, message);
+			debug("command to be executed: %s\n", command);
+			FILE *command_pipe = popen(command, "r");
+			char *command_output_buffer;
+			size_t command_output_buffer_length = 0;
+
+			printf("\n");
+			while (getline(&command_output_buffer, &command_output_buffer_length, 
+						command_pipe) != -1) {
+				printf("\t%s", command_output_buffer);
+			}
+
+			free(command_output_buffer);
+			pclose(command_pipe);
+		}
 	}
 
 	close(serverfd);
