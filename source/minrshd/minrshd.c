@@ -100,39 +100,42 @@ int main(int argc, char **argv)
 	while (!done_state) {
 		bzero(buffer, sizeof(buffer));
 		
-		bytes_read = read(clientfd, buffer, 16);
-		debug("%d bytes read via read()\n", bytes_read);
-
 		char message[16];
-		strncpy(message, buffer, bytes_read);
+		bzero(message, sizeof(message));
+		bytes_read = read(clientfd, message, 16);
+		debug("%d bytes read via read()\n", bytes_read);
 
 		debug("invoking aes_decrypt()\n");
 		aes_decrypt(message, key);
 		debug("aes_decrypt() finished\n");
 
-		debug("data received: %s\n", message);
-
+		debug("command received: %s\n", message);
 		if (!strcmp(message, "exit")) {
 			done_state = true;
 		}
 		else {
-			char command[60];
-			bzero(command, sizeof(command));
-			strcpy(command, "bash -c ");
-			strcat(command, message);
-			debug("command to be executed: %s\n", command);
-			FILE *command_pipe = popen(command, "r");
-			char *command_output_buffer;
-			size_t command_output_buffer_length = 0;
-
-			printf("\n");
-			while (getline(&command_output_buffer, &command_output_buffer_length, 
-						command_pipe) != -1) {
-				printf("\t%s", command_output_buffer);
+			if (!strcmp(message, "cd")) {
+				/* need to fix this to extract the path from the 
+				 * message received, if it exists, and then to 
+				 * change to that path or to perform the default 
+				 * behavior 
+				 */
+				debug("cd entered\n");
 			}
+			else {
+				FILE *command_pipe = popen(message, "r");
+				char *command_output_buffer;
+				size_t command_output_buffer_length = 0;
 
-			free(command_output_buffer);
-			pclose(command_pipe);
+				printf("\n");
+				while (getline(&command_output_buffer, &command_output_buffer_length, 
+							command_pipe) != -1) {
+					printf("\t%s", command_output_buffer);
+				}
+
+				free(command_output_buffer);
+				pclose(command_pipe);
+			}
 		}
 	}
 

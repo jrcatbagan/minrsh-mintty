@@ -69,20 +69,20 @@ int main(int argc, char **argv)
 
         ssize_t bytes_written = write(serverfd, buffer, sizeof(buffer));
         ssize_t bytes_read;
-	char *inbuffer = NULL;
+	char *command = NULL;
 	size_t n = 0;
 
 	bool done_state = false;
 
 	while (!done_state) {
-		bytes_read = getline(&inbuffer, &n, stdin);
-		
-		n = bytes_read - 1;
-		inbuffer[n] = '\0';
-	
+		bytes_read = getline(&command, &n, stdin);
+
 		char message[16];
 		bzero(message, sizeof(message));
-		strcpy(message, inbuffer);
+		strncpy(message, command, (bytes_read - 1));
+		
+		if(!strcmp(message, "exit"))
+			done_state = true;
 
 		debug("command entered: %s\n", message);
 
@@ -92,12 +92,8 @@ int main(int argc, char **argv)
 
 		debug("writing data via write()\n");
 		bytes_written = write(serverfd, message, 16);
-		debug("data written via write()\n");
-
-		if(!strcmp(inbuffer, "exit"))
-			done_state = true;
+		debug("%d bytes written via write()\n", bytes_written);
 	}
-
 
 	close(serverfd);
 
