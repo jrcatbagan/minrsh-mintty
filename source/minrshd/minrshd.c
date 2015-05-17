@@ -42,6 +42,7 @@
 #include <common/options.h>
 #include <common/defines.h>
 #include <common/util.h>
+#include <core/comminit.h>
 #include <crypt/aes.h>
 #include <crypt/key.h>
 
@@ -69,37 +70,17 @@ int main(int argc, char **argv)
 	int size = sizeof(clientname);
         clientfd = accept(serverfd, (struct sockaddr *) &clientname, &size);
 			  
-        unsigned char buffer[100];
-        ssize_t bytes_read = read(clientfd, buffer, sizeof(buffer));
-        if(bytes_read == 0 || bytes_read == -1) {
-                fprintf(stdout, "no client data\n");
-                exit(1);
-        }
-	
-	enum flag_t cominvalid_flag = NOT_SET;
-
-	int i;
-	for (i = 0; i < bytes_read; i++) {
-		printf("%x\n", buffer[i]);
-        	if (i % 2) {
-			if (!(buffer[i] == 0xAA))
-				cominvalid_flag = SET;
-		}
-		else {
-			if (!(buffer[i] == 0x55))
-				cominvalid_flag = SET;
-		}
+	if (verify_client_initiation(clientfd) == -1) {
+		fprintf(stderr, "error: invalid client initiation\n");
+		exit(EXIT_FAILURE);
+	}
+	else {
+		fprintf(stdout, "valid client initiation\n");
 	}
 
-	if (cominvalid_flag == SET)
-		printf("client connected; invalid communication initiation sequence\n");
-	else
-		printf("client connected; valid communication initiation sequence\n");
-
+	ssize_t bytes_read;
 	bool done_state = false;
 	while (!done_state) {
-		bzero(buffer, sizeof(buffer));
-		
 		char message[16];
 		bzero(message, sizeof(message));
 		bytes_read = read(clientfd, message, 16);

@@ -9,6 +9,7 @@ MINRSHDIR	= $(PWD)/source/minrsh
 MINRSHDDIR 	= $(PWD)/source/minrshd
 MINTTYDIR	= $(PWD)/source/mintty
 COMMONDIR	= $(PWD)/source/common
+COREDIR		= $(PWD)/source/core
 CRYPTDIR	= $(PWD)/source/crypt
 CCFLAGS		= -isystem $(PWD)/include
 
@@ -17,10 +18,10 @@ default:
 	@echo -e "specify target 'help' to see supported targets"
 all: minrshd minrsh
 minrshd: $(MINRSHDDIR)/minrshd.c $(COMMONDIR)/network.c \
-	$(COMMONDIR)/options.c $(CRYPTDIR)/aes.c 
+		$(COMMONDIR)/options.c $(CRYPTDIR)/aes.c $(COREDIR)/comminit.c
 	gcc -o minrshd $^ $(CCFLAGS) $(ECCFLAGS)
 minrsh: $(MINRSHDIR)/minrsh.c $(COMMONDIR)/network.c $(COMMONDIR)/options.c \
-	$(CRYPTDIR)/aes.c
+		$(CRYPTDIR)/aes.c $(COREDIR)/comminit.c
 	gcc -o minrsh $^ $(CCFLAGS) $(ECCFLAGS)
 clean:
 	rm -f minrsh minrshd
