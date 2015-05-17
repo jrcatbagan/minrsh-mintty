@@ -36,6 +36,17 @@
 
 #include <stdint.h>
 
+/* 'struct net_info_t' contains members that are initialized by 'extract_options()' in
+ * /include/common/options.h
+ *
+ * the member within this structure must be dynamically allocated; since the intended
+ * values stored into these variables are allocated by the system at program execution
+ * start, no need to worry */
+struct net_info_t
+{
+	char *ip_address;
+	uint16_t port;
+};
 
 /* 
  * Initializes a server instance by opening a socket with the specified port 

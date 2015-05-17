@@ -17,7 +17,8 @@ default:
 	@echo -e "specify target 'help' to see supported targets"
 minrshd: $(MINRSHDDIR)/minrshd.c $(COMMONDIR)/network.c $(CRYPTDIR)/aes.c 
 	gcc -o minrshd $^ $(CCFLAGS) $(ECCFLAGS)
-minrsh: $(MINRSHDIR)/minrsh.c $(COMMONDIR)/network.c $(CRYPTDIR)/aes.c
+minrsh: $(MINRSHDIR)/minrsh.c $(COMMONDIR)/network.c $(COMMONDIR)/options.c \
+	$(CRYPTDIR)/aes.c
 	gcc -o minrsh $^ $(CCFLAGS) $(ECCFLAGS)
 clean:
 	rm -f minrsh minrshd
