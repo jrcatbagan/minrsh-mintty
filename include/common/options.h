@@ -36,7 +36,12 @@
 #include <common/network.h>
 #include <common/defines.h>
 
+#define H_FLAG_SET	0x01
+#define P_FLAG_SET	0x02
+#define I_FLAG_SET	0x04
+#define ERR_FLAG_SET	0x08
+
 /* function declarations */
-enum flag_t extract_options(struct net_info_t *net_info, int argc, char **argv);
+int extract_options(struct net_info_t *net_info, int argc, char **argv);
 
 #endif /* OPTIONS_H */

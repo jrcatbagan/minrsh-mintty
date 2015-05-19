@@ -54,8 +54,7 @@ int main(int argc, char **argv)
 	bool done_state = false;
 	char message[16];
 
-	enum flag_t err_flag = extract_options(&net_info, argc, argv);
-	if (err_flag == SET) {
+	if (extract_options(&net_info, argc, argv) == -1) {
 		fprintf(stderr, "error: options extraction failed\n");
 		exit(EXIT_FAILURE);
 	}

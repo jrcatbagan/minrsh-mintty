@@ -39,10 +39,11 @@
 #include <common/options.h>
 #include <common/defines.h>
 
-enum flag_t extract_options(struct net_info_t *net_info, int argc, char **argv)
+int extract_options(struct net_info_t *net_info, int argc, char **argv)
 {
 	int retoption;
 	char *port_literal, *ipaddr_literal;
+	unsigned char flags = 0x00;
 
 	/* valid options for minrsh/minrshd */
 	struct option long_options[] = 
@@ -56,61 +57,59 @@ enum flag_t extract_options(struct net_info_t *net_info, int argc, char **argv)
 	/* disable getopt_long from printing error messages */
 	opterr = 0;
 
-	enum flag_t h_flag = NOT_SET, i_flag = NOT_SET, p_flag = NOT_SET, err_flag = NOT_SET;
-
 	while((retoption = getopt_long(argc, argv, "hi:p:", 
 				       long_options, NULL)) != -1) {
 		switch(retoption) {
 		case 'h':
-			h_flag = SET;
+			flags |= H_FLAG_SET;
 			break;
 		case 'p':
-			p_flag = SET;
+			flags |= P_FLAG_SET;
 			port_literal = optarg;
 			break;
 		case'i':
-			i_flag = SET;
+			flags |= I_FLAG_SET;
 			ipaddr_literal = optarg;
 			break;
 		default: /* '?' */
-			err_flag = SET;
+			flags |= ERR_FLAG_SET;
 			break;
 		}
 	}
-	
-	if((h_flag == SET && (p_flag == SET || i_flag == SET)) || err_flag == SET) {
-		if(h_flag == SET && (p_flag == SET || i_flag == SET)) {
-			fprintf(stderr, "error: no other must be specified with "
-					"option 'h'\n");
-		}
-		if(err_flag == SET) 
-			fprintf(stderr, "error: invalid option specified\n");
-		else
-			err_flag = SET;
+
+	if (flags & ERR_FLAG_SET) {
+		fprintf(stderr, "error: invalid option specified\n");
+		return -1;
 	}
-	else if(h_flag == SET) {
+
+	/* we reach this point assuming that no errors have occured; i.e. no invalid option was
+	   specified on the command-line */
+	if ((flags & H_FLAG_SET) && (flags & ~H_FLAG_SET)) {
+		fprintf(stderr, "error: no other options must be specified with the 'help' option\n");
+		return -1;
+	}
+	else if ((flags & H_FLAG_SET) && !(flags & ~H_FLAG_SET)) {
 		fprintf(stdout, "usage: %s [options]\n\n"
-			"\t-h --help\tdisplay help\n"
-			"\t-i --ip-address\tspecify ip address\n"
-			"\t-p --port\tspecify port to listen on\n",
-			argv[0]);
+				"\t-h --help\tdisplay help\n"
+				"\t-i --ip-address\t specify IP address\n"
+				"\t-p --port\tspecify port\n",
+				argv[0]);
 		exit(EXIT_SUCCESS);
 	}
-	else if(i_flag == NOT_SET && p_flag == NOT_SET) {
-		fprintf(stderr, "error: no options specified\n");
-		err_flag = SET;
+	else {
+		if ((flags & P_FLAG_SET) && (flags & I_FLAG_SET)) {
+			/* both the port number and the IP address have been specified */
+			net_info->ip_address = ipaddr_literal;
+			net_info->port = (uint16_t) atoi(port_literal);
+
+			printf("%s - %d\n", net_info->ip_address, net_info->port);
+		}
+		else {
+			/* one of the network parameters is missing */
+			fprintf(stderr, "error: incomplete network parameters\n");
+			return -1;
+		}
 	}
-	else if(i_flag == NOT_SET && p_flag == SET) {
-		fprintf(stderr, "error: ip address to connect to was not specified\n");
-		err_flag = SET;
-	}
-	else if(i_flag == SET && p_flag == NOT_SET) {
-		fprintf(stderr, "error: port to connect to was not specified\n");
-		err_flag = SET;
-	}
-	else { /* i_flag == SET && p_flag == SET */
-		net_info->ip_address = ipaddr_literal;
-		net_info->port = (uint16_t) atoi(port_literal);
-	}
-	return err_flag;	
+	
+	return 0;
 }
