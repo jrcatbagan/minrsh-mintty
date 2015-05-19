@@ -38,44 +38,36 @@
 #include "../../include/common/network.h"
 
 
-int initserver(int *serverfd, const char *ipaddr, uint16_t port)
+int initialize_server(struct net_info_t *server)
 {
-	int fd = socket(PF_INET, SOCK_STREAM, 0);
+	server->fd = socket(PF_INET, SOCK_STREAM, 0);
 	int retval;
 
-        if(fd < 0) {
-                serverfd = NULL;
+        if(server->fd < 0) {
                 return -1;
         }
-	else {
-	        *serverfd = fd;
-	}
-        struct sockaddr_in servername;
 
-        servername.sin_family = AF_INET;
-	retval = inet_aton(ipaddr, &(servername.sin_addr));
+        server->name.sin_family = AF_INET;
+	retval = inet_aton(server->ip_address, &(server->name.sin_addr));
         if(retval == 0) {
                 fprintf(stderr, "error: ip address is invalid\n");
-                close(fd);
-                serverfd = NULL;
+                close(server->fd);
                 return -1;
         }
-        servername.sin_port = htons(port);
+        server->name.sin_port = htons(server->port);
 
-        retval = bind(*serverfd, (struct sockaddr *) &servername,
-                          sizeof(servername));
+        retval = bind(server->fd, (struct sockaddr *) &server->name,
+                          sizeof(server->name));
         if(retval != 0) {
                 fprintf(stderr, "error: binding to arbitrary address failed\n");
-                close(fd);
-                serverfd = NULL;
+                close(server->fd);
                 return -1;
         }
         
-        retval = listen(*serverfd, 1);
+        retval = listen(server->fd, 1);
         if(retval != 0) {
-                fprintf(stderr, "error: listening on port %d failed\n", port);
-                close(fd);
-                serverfd = NULL;
+                fprintf(stderr, "error: listening on port %d failed\n", server->port);
+                close(server->fd);
                 return -1;
         }
         else {
@@ -84,40 +76,38 @@ int initserver(int *serverfd, const char *ipaddr, uint16_t port)
 }
 
 
-int initclient(int *serverfd, const char *ipaddr, uint16_t port)
+int connect_to_server(struct net_info_t *server)
 {
-        int fd = socket(PF_INET, SOCK_STREAM, 0);
-        if(fd < 0) {
-                serverfd = NULL;
+	server->fd = socket(PF_INET, SOCK_STREAM, 0);
+        if(server->fd < 0) {
                 return -1;
         }
-        else {
-                *serverfd = fd;
-        }
 
-        struct sockaddr_in servername;
-
-        servername.sin_family = AF_INET;
-        servername.sin_port = htons(port);
-        int retval = inet_aton(ipaddr, &(servername.sin_addr));
+        server->name.sin_family = AF_INET;
+        server->name.sin_port = htons(server->port);
+        int retval = inet_aton(server->ip_address, &(server->name.sin_addr));
         if(retval == 0) {
                 fprintf(stderr, "error: ip address is invalid\n");
-                close(fd);
-                serverfd = NULL;
+                close(server->fd);
                 return -1;
         }
 
-        retval = connect(*serverfd, (struct sockaddr *) &servername,
-                             sizeof(servername));
+        retval = connect(server->fd, (struct sockaddr *) &server->name,
+                             sizeof(server->name));
         if(retval != 0) {
 		perror("error: ");
-                fprintf(stderr, "error: connection to %s failed\n", ipaddr);
-                close(fd);
-                serverfd = NULL;
+                fprintf(stderr, "error: connection to %s failed\n", server->ip_address);
+                close(server->fd);
                 return -1;
         }
         else {
-                fprintf(stdout, "now connected to %s\n", ipaddr);
+                fprintf(stdout, "now connected to %s\n", server->ip_address);
                 return 0;
         }
+}
+
+
+void accept_client_connection(struct net_info_t *client, struct net_info_t *server)
+{
+	client->fd = accept(server->fd, (struct sockaddr *) &client->name, &client->name_size);
 }

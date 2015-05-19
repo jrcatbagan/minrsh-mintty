@@ -47,29 +47,29 @@
 
 int main(int argc, char **argv) 
 {
-        int serverfd;
-	struct net_info_t net_info;
+	struct net_info_t server;
 	ssize_t bytes_read, bytes_written;
+	bool done_state = false;
 	char *command = NULL;
 	size_t command_length = 0;
 
 
-	bool done_state = false;
-
-	if (extract_options(&net_info, argc, argv) == -1) {
+	if (extract_options(&server, argc, argv) == -1) {
 		fprintf(stderr, "error: options extraction failed\n");
 		exit(EXIT_FAILURE);
 	}
 
-	/* set up the client */
-        int retval = initclient(&serverfd, net_info.ip_address, net_info.port);
+
+	/* connect to server with the network parameters specified from the options extracted */
+        int retval = connect_to_server(&server);
         if(retval == -1) {
                 fprintf(stderr, "error: server connection failed\n");
                 exit(1);
         }
 
+
 	/* send initial communication sequence to server */
-	send_client_initiation(serverfd);
+	send_client_initiation(server.fd);
         
 
 	while (!done_state) {
@@ -89,11 +89,11 @@ int main(int argc, char **argv)
 		debug("aes_encrypt() finished\n");
 
 		debug("writing data via write()\n");
-		bytes_written = write(serverfd, message, 16);
+		bytes_written = write(server.fd, message, 16);
 		debug("%d bytes written via write()\n", bytes_written);
 	}
 
-	close(serverfd);
+	close(server.fd);
 
         exit(0);
 }

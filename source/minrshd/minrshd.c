@@ -48,33 +48,30 @@
 
 int main(int argc, char **argv)
 {
-        int serverfd;
-	struct net_info_t net_info;
+	struct net_info_t server, client;
 	ssize_t bytes_read, bytes_written;
 	bool done_state = false;
 	char message[16];
 
-	if (extract_options(&net_info, argc, argv) == -1) {
+
+	if (extract_options(&server, argc, argv) == -1) {
 		fprintf(stderr, "error: options extraction failed\n");
 		exit(EXIT_FAILURE);
 	}
 
 	/* set up the server */
-        int retval = initserver(&serverfd, net_info.ip_address, net_info.port);
+        int retval = initialize_server(&server);
         if(retval == -1) {
                 fprintf(stderr, "error: server initiation failed\n");
                 exit(1);
         }
 
-        int clientfd;
-        struct sockaddr_in clientname;
-	int size = sizeof(clientname);
-        clientfd = accept(serverfd, (struct sockaddr *) &clientname, &size);
+	accept_client_connection(&client, &server);
 			  
-	if (verify_client_initiation(clientfd) == -1) {
+	if (verify_client_initiation(client.fd) == -1) {
 		fprintf(stderr, "error: invalid client initiation\n");
-		close(clientfd);
-		close(serverfd);
+		close(client.fd);
+		close(server.fd);
 		exit(EXIT_FAILURE);
 	}
 	else {
@@ -83,7 +80,7 @@ int main(int argc, char **argv)
 
 	while (!done_state) {
 		bzero(message, sizeof(message));
-		bytes_read = read(clientfd, message, 16);
+		bytes_read = read(client.fd, message, 16);
 		debug("%d bytes read via read()\n", bytes_read);
 
 		debug("invoking aes_decrypt()\n");
@@ -132,7 +129,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	close(serverfd);
-	close(clientfd);
+	close(server.fd);
+	close(client.fd);
         exit(0);
 }

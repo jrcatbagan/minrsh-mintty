@@ -35,6 +35,8 @@
 #define NETWORK_H
 
 #include <stdint.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 /* 'struct net_info_t' contains members that are initialized by 'extract_options()' in
  * /include/common/options.h
@@ -44,6 +46,9 @@
  * start, no need to worry */
 struct net_info_t
 {
+	int fd;
+	struct sockaddr_in name;
+	int name_size;
 	char *ip_address;
 	uint16_t port;
 };
@@ -64,7 +69,7 @@ struct net_info_t
  * @retval 0: Server initialization was successful.
  * @retval 1: Server initialization was unsuccessful.
  */
-int initserver(int *serverfd, const char *ipaddr, uint16_t port);
+int initialize_server(struct net_info_t *server);
 
 
 /*
@@ -85,6 +90,8 @@ int initserver(int *serverfd, const char *ipaddr, uint16_t port);
  * @retval 0: Connection to server was successful.
  * @retval 1: Connection to server was not successful.
  */
-int initclient(int *serverfd, const char *ipaddr, uint16_t port);
+int connect_to_server(struct net_info_t *server);
+
+void accept_client_connection(struct net_info_t *client, struct net_info_t *server);
 
 #endif /* NETWORK_H */
