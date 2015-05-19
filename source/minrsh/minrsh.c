@@ -61,8 +61,7 @@ int main(int argc, char **argv)
 
 
 	/* connect to server with the network parameters specified from the options extracted */
-        int retval = connect_to_server(&server);
-        if(retval == -1) {
+        if (connect_to_server(&server) != -1) {
                 fprintf(stderr, "error: server connection failed\n");
                 exit(1);
         }

@@ -59,12 +59,13 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+
 	/* set up the server */
-        int retval = initialize_server(&server);
-        if(retval == -1) {
+        if (initialize_server(&server) != -1) {
                 fprintf(stderr, "error: server initiation failed\n");
                 exit(1);
         }
+
 
 	accept_client_connection(&client, &server);
 			  
@@ -74,10 +75,10 @@ int main(int argc, char **argv)
 		close(server.fd);
 		exit(EXIT_FAILURE);
 	}
-	else {
-		fprintf(stdout, "valid client initiation\n");
-	}
 
+	debug("valid client initiation\n");
+	
+	
 	while (!done_state) {
 		bzero(message, sizeof(message));
 		bytes_read = read(client.fd, message, 16);
