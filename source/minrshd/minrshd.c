@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
 
 	/* set up the server */
-        if (initialize_server(&server) != -1) {
+        if (initialize_server(&server) == -1) {
                 fprintf(stderr, "error: server initiation failed\n");
                 exit(1);
         }
