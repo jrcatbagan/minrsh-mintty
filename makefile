@@ -20,11 +20,12 @@ all: minrshd minrsh
 # all executables built are manually placed in 'build'; not really elegant, so
 # when time permits, find a better solution
 minrshd: $(MINRSHDDIR)/minrshd.c $(COMMONDIR)/network.c \
-		$(COMMONDIR)/options.c $(CRYPTDIR)/aes.c $(COREDIR)/comminit.c
+		$(COMMONDIR)/options.c $(CRYPTDIR)/aes.c $(COREDIR)/comminit.c \
+		$(COMMONDIR)/command.c
 	gcc -o minrshd $^ $(CCFLAGS) $(ECCFLAGS)
 	@mv $@ build
 minrsh: $(MINRSHDIR)/minrsh.c $(COMMONDIR)/network.c $(COMMONDIR)/options.c \
-		$(CRYPTDIR)/aes.c $(COREDIR)/comminit.c
+		$(CRYPTDIR)/aes.c $(COREDIR)/comminit.c $(COMMONDIR)/command.c
 	gcc -o minrsh $^ $(CCFLAGS) $(ECCFLAGS)
 	@mv $@ build
 clean:

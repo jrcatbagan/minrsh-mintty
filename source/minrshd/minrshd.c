@@ -46,6 +46,8 @@
 #include <crypt/aes.h>
 #include <crypt/key.h>
 
+#include <common/command.h>
+
 int main(int argc, char **argv)
 {
 	struct net_info_t server, client;
@@ -112,6 +114,7 @@ int main(int argc, char **argv)
 					chdir(argument);
 					free(argument);
 				}
+				send_controlcommand(client.fd, CMD_NO_DATA);
 			}
 			else {
 				FILE *command_pipe = popen(message, "r");
@@ -121,12 +124,9 @@ int main(int argc, char **argv)
 
 				printf("\n");
 
-				unsigned char controlcommand = 0xAA;
-				debug("sending control command\n");
-				bytes_written = write(client.fd, &controlcommand, sizeof(controlcommand));
-				debug("control command sent\n");
 				while (getline(&command_output_buffer, &command_output_buffer_length, 
 							command_pipe) != -1) {
+					send_controlcommand(client.fd, CMD_MORE_DATA);
 					printf("\t%s - size %d", command_output_buffer, command_output_buffer_length);
 
 					bytes_written = write(client.fd, &command_output_buffer_length,
@@ -142,18 +142,9 @@ int main(int argc, char **argv)
 							message[j] = command_output_buffer[i];
 						bytes_written = write(client.fd, message, sizeof(message));
 					}
-
-					controlcommand = 0xAA;
-					debug("sending control command\n");
-					bytes_written = write(client.fd, &controlcommand, sizeof(controlcommand));
-					debug("control command sent\n");
 				}
 
-				controlcommand = 0x55;
-				debug("sending last control command\n");
-				bytes_written = write(client.fd, &controlcommand, sizeof(controlcommand));
-				debug("last control command sent\n");
-
+				send_controlcommand(client.fd, CMD_NO_DATA);
 				printf("\n");
 
 

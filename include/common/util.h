@@ -34,6 +34,7 @@
 #define UTIL_H
 
 #ifdef DEBUG
+#include <stdio.h>
 #define debug(fmt, ...)	fprintf(stdout, fmt, ##__VA_ARGS__) 
 #else
 #define debug(fmt, ...)

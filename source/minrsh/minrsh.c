@@ -45,6 +45,8 @@
 #include <crypt/aes.h>
 #include <crypt/key.h>
 
+#include <common/command.h>
+
 int main(int argc, char **argv) 
 {
 	struct net_info_t server;
@@ -93,15 +95,12 @@ int main(int argc, char **argv)
 
 		unsigned char controlcommand;
 
-		do {
-			debug("trying to receive control command\n");
-			bytes_read = read(server.fd, &controlcommand, sizeof(controlcommand));
-			debug("received control command %0x\n", controlcommand);
+		while ((controlcommand = receive_controlcommand(server.fd)) == CMD_MORE_DATA) {
 			size_t nbyteoutput;
 			debug("trying to get number of bytes to receive\n");
 			bytes_read = read(server.fd, &nbyteoutput, sizeof(nbyteoutput));
 			debug("received number of bytes to receive\n");
-			//debug("number of bytes to receive is %d\n", nbyteoutput);
+			debug("number of bytes to receive is %d\n", nbyteoutput);
 
 			unsigned int nblockdata;
 
@@ -118,11 +117,11 @@ int main(int argc, char **argv)
 				bytes_read = read(server.fd, message, sizeof(message));
 				debug("received data block\n");
 				//debug("bytes read during a multi datablock transfer is %d\n", bytes_read);
-				printf("received %s\n", message);
-			}
 
-			debug("data blocks received - control command %0x\n", controlcommand);
-		} while (controlcommand == 0xAA);
+				printf("%s", message);
+				//printf("received %s\n", message);
+			}
+		}
 
 	}
 
