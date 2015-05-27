@@ -90,6 +90,27 @@ int main(int argc, char **argv)
 		debug("writing data via write()\n");
 		bytes_written = write(server.fd, message, 16);
 		debug("%d bytes written via write()\n", bytes_written);
+
+		unsigned char controlcommand;
+
+		do {
+			bytes_read = read(server.fd, &controlcommand, sizeof(controlcommand));
+			size_t nbyteoutput;
+			bytes_read = read(server.fd, &nbyteoutput, sizeof(nbyteoutput));
+			debug("number of bytes to receive is %d\n", nbyteoutput);
+
+			unsigned int nblockdata = (nbyteoutput + 16) / 16;
+			debug("number of data blocks to receive is %d\n", nblockdata);
+
+			unsigned int datablockindex;
+			for (datablockindex = 0; datablockindex < nblockdata; datablockindex++) {
+				bytes_read = read(server.fd, message, sizeof(message));
+				debug("bytes read during a multi datablock transfer is %d\n", bytes_read);
+				printf("received %s\n", message);
+			}
+
+		} while (controlcommand == 0xAA);
+
 	}
 
 	close(server.fd);

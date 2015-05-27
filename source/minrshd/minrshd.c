@@ -115,14 +115,42 @@ int main(int argc, char **argv)
 			}
 			else {
 				FILE *command_pipe = popen(message, "r");
+				
 				char *command_output_buffer;
 				size_t command_output_buffer_length = 0;
 
 				printf("\n");
+
+				unsigned char controlcommand = 0xAA;
+				bytes_written = write(client.fd, &controlcommand, sizeof(controlcommand));
 				while (getline(&command_output_buffer, &command_output_buffer_length, 
 							command_pipe) != -1) {
-					printf("\t%s", command_output_buffer);
+					printf("\t%s - size %d", command_output_buffer, command_output_buffer_length);
+
+					bytes_written = write(client.fd, &command_output_buffer_length,
+								sizeof(command_output_buffer_length));
+
+					unsigned int ndatablocks = (command_output_buffer_length + 16) / 16;
+					unsigned int datablockindex;
+					for (datablockindex = 0; datablockindex < ndatablocks; datablockindex++) {
+						bzero(message, sizeof(message));
+						unsigned int base = 16 * datablockindex;
+						int i, j;
+						for (i = base, j = 0; i < (base + 16); i++, j++)
+							message[j] = command_output_buffer[i];
+						bytes_written = write(client.fd, message, sizeof(message));
+					}
+
+					controlcommand = 0xAA;
+					bytes_written = write(client.fd, &controlcommand, sizeof(controlcommand));
 				}
+
+				controlcommand = 0x55;
+				bytes_written = write(client.fd, &controlcommand, sizeof(controlcommand));
+
+				printf("\n");
+
+
 
 				free(command_output_buffer);
 				pclose(command_pipe);
