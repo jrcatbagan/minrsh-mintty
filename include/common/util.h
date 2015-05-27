@@ -34,7 +34,7 @@
 #define UTIL_H
 
 #ifdef DEBUG
-#define debug(fmt, ...)	fprintf(stdout, "%s: %d:\n\t " fmt, __FILE__, __LINE__, ##__VA_ARGS__) 
+#define debug(fmt, ...)	fprintf(stdout, fmt, ##__VA_ARGS__) 
 #else
 #define debug(fmt, ...)
 #endif /* DEBUG */

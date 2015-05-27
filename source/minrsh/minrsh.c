@@ -83,32 +83,45 @@ int main(int argc, char **argv)
 
 		debug("command entered: %s\n", message);
 
-		debug("invoking aes_encrypt()\n");
+		//debug("invoking aes_encrypt()\n");
 		aes_encrypt(message, key);
-		debug("aes_encrypt() finished\n");
+		//debug("aes_encrypt() finished\n");
 
-		debug("writing data via write()\n");
+		//debug("writing data via write()\n");
 		bytes_written = write(server.fd, message, 16);
-		debug("%d bytes written via write()\n", bytes_written);
+		//debug("%d bytes written via write()\n", bytes_written);
 
 		unsigned char controlcommand;
 
 		do {
+			debug("trying to receive control command\n");
 			bytes_read = read(server.fd, &controlcommand, sizeof(controlcommand));
+			debug("received control command %0x\n", controlcommand);
 			size_t nbyteoutput;
+			debug("trying to get number of bytes to receive\n");
 			bytes_read = read(server.fd, &nbyteoutput, sizeof(nbyteoutput));
-			debug("number of bytes to receive is %d\n", nbyteoutput);
+			debug("received number of bytes to receive\n");
+			//debug("number of bytes to receive is %d\n", nbyteoutput);
 
-			unsigned int nblockdata = (nbyteoutput + 16) / 16;
+			unsigned int nblockdata;
+
+			if (nbyteoutput != 0)
+				nblockdata = (nbyteoutput + 16) / 16;
+			else
+				nblockdata = 0;
+
 			debug("number of data blocks to receive is %d\n", nblockdata);
 
 			unsigned int datablockindex;
 			for (datablockindex = 0; datablockindex < nblockdata; datablockindex++) {
+				debug("trying to receive data block\n");
 				bytes_read = read(server.fd, message, sizeof(message));
-				debug("bytes read during a multi datablock transfer is %d\n", bytes_read);
+				debug("received data block\n");
+				//debug("bytes read during a multi datablock transfer is %d\n", bytes_read);
 				printf("received %s\n", message);
 			}
 
+			debug("data blocks received - control command %0x\n", controlcommand);
 		} while (controlcommand == 0xAA);
 
 	}
