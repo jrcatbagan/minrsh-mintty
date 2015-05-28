@@ -1,0 +1,8 @@
+#ifndef DEFINE_H
+#define DEFINE_H
+
+enum program_state_t {WAITING_FOR_CTRLCMD = 0, RECEIVING_DATABLOCK,
+                      UNINITIALIZED, RETRIEVING_DATA_LENGTH, WAITING_FOR_CTRLCMD_MORE};
+
+#endif // DEFINE_H
+

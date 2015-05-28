@@ -11,6 +11,7 @@
 #include <QDialog>
 #include <QString>
 #include <QTcpSocket>
+#include "defines.h"
 
 namespace Ui {
 class terminal;
@@ -25,11 +26,17 @@ private slots:
     void establish_comm(QString ipaddressliteral, QString portliteral);
 
     void on_le_command_returnPressed();
+    void handledata();
 
 public:
     explicit terminal(QWidget *parent = 0);
     ~terminal();
     QTcpSocket *serversock;
+    enum program_state_t program_state;
+    unsigned int ndatablocks;
+    unsigned int datablockindex;
+    QString messageoutput;
+
 
 private:
     Ui::terminal *ui;

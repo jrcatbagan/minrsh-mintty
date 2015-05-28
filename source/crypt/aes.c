@@ -5,6 +5,7 @@
  * Description: AES-128 encryption and decryption adapted for minrsh/minrshd.
  */
 
+
 /* encryption sbox */
 const unsigned char sbox[256] = 
 { 

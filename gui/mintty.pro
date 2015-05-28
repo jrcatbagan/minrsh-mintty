@@ -14,10 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mintty.cpp \
-    terminal.cpp
+    terminal.cpp \
+    ../source/crypt/aes.c
 
 HEADERS  += mintty.h \
-    terminal.h
+    terminal.h \
+    ../include/crypt/aes.h \
+    ../include/crypt/key.h \
+    defines.h
 
 FORMS    += mintty.ui \
     terminal.ui
