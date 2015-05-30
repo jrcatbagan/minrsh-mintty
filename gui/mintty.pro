@@ -20,7 +20,8 @@ SOURCES += main.cpp\
 HEADERS  += mintty.h \
     terminal.h \
     ../include/crypt/aes.h \
-    ../include/crypt/key.h
+    ../include/crypt/key.h \
+    defines.h
 
 FORMS    += mintty.ui \
     terminal.ui
