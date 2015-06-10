@@ -2,8 +2,8 @@
 // File: terminal.cpp
 // Date: 2015, May 09
 //
-// Copyright (C) 2015, Irene Cho <irenechoster@gmail.com>
-// Copyright (C) 2015, Jarielle Catbagan <jrcatbagan@ca.rr.com>
+//
+// Alpha Group
 
 #include "terminal.h"
 #include "ui_terminal.h"
@@ -15,6 +15,15 @@
 
 #include "../include/crypt/aes.h"
 //#include "../include/crypt/key.h"
+
+#ifdef DEBUG
+#define debug(str) do {\
+    cout << str << endl;\
+    }\
+    while(0);
+#else
+#define debug(str)
+#endif
 
 #define CMD_MORE_DATA   0x55
 #define CMD_NO_DATA     0x22
@@ -29,7 +38,7 @@ terminal::terminal(QWidget *parent) :
     ui->setupUi(this);
     this->ui->te_output->setReadOnly(true);
     this->program_state = UNINITIALIZED;
-    cout << "program state: UNITIALIZED" << endl << endl;
+    debug("program state: UNITIALIZED");
 }
 
 terminal::~terminal()
@@ -74,19 +83,19 @@ void terminal::establish_comm(QString ipaddressliteral, QString portliteral)
 
 void terminal::handledata()
 {
-    cout << "handledata() invoked" << endl;
+    debug("handle() invoked");
 
     if (program_state == WAITING_FOR_CTRLCMD) {
         QByteArray controlcommand;
         controlcommand = serversock->read(16);
         if (controlcommand.size() != 1) {
-            cout << "data is not 1 byte" << endl;
+            debug("data is not 1 byte");
             serversock->close();
             QApplication::quit();
         }
         else {
             if (controlcommand.at(0) == CMD_MORE_DATA) {
-                cout << "received CMD_MORE_DATA" << endl;
+                debug("received CMD_MORE_DATA");
                 controlcommand.clear();
                 controlcommand.append(ACK);
                 if (serversock->write(controlcommand, controlcommand.size()) == -1) {
@@ -95,10 +104,10 @@ void terminal::handledata()
                 }
                 serversock->waitForBytesWritten();
                 program_state = RETRIEVING_DATA_LENGTH;
-                cout << "program state: RETRIEVING_DATA_LENGTH" << endl << endl;
+                debug("program state: RETRIEVING_DATA_LENGTH");
             }
             else if (controlcommand.at(0) == CMD_NO_DATA) {
-                cout << "received CMD_NO_DATA" << endl;
+                debug("received CMD_NO_DATA");
                 controlcommand.clear();
                 controlcommand.append(ACK);
                 if (serversock->write(controlcommand, controlcommand.size()) == -1) {
@@ -107,14 +116,14 @@ void terminal::handledata()
                 }
                 serversock->waitForBytesWritten();
                 program_state = UNINITIALIZED;
-                cout << "program state: UNITILIAZED" << endl;
+                debug("program state: UNITILIAZED");
 
                 this->ui->te_output->appendPlainText("mintty> ");
             }
             else {
-                cout << "received invalid control command" << endl;
+                debug("received invalid control command");
                 program_state = UNINITIALIZED;
-                cout << "program state: UNITILIAZED" << endl;
+                debug("program state: UNITILIAZED");
             }
         }
 
@@ -124,7 +133,7 @@ void terminal::handledata()
         QByteArray nbyteoutput;
         nbyteoutput = serversock->read(16);
         if (nbyteoutput.size() == 0) {
-            cout << "did not receive data length" << endl;
+            debug("did not receive data length");
             serversock->close();
             QApplication::quit();
         }
@@ -146,11 +155,10 @@ void terminal::handledata()
         else
             ndatablocks = 0;
 
-        cout << "number of 16-bit datablocks to receive " <<
-                ndatablocks << endl;
+        debug("number of 16-bit datablocks to receive ");
         datablockindex = 0;
         program_state = RECEIVING_DATABLOCK;
-        cout << "program state: RECEIVING_DATABLOCK" << endl << endl;
+        debug("program state: RECEIVING_DATABLOCK");
 
         this->messageoutput.clear();
         this->messageoutput = this->ui->te_output->toPlainText();
@@ -158,19 +166,16 @@ void terminal::handledata()
     else if (program_state == RECEIVING_DATABLOCK) {
         if (datablockindex < ndatablocks) {
 
-            cout << "we are receiving datablock # " << datablockindex + 1 << endl;
+            debug("we are receiving a datablock");
             /* get one of the datablocks */
             QByteArray datablock;
-            cout << "waiting" << endl;
+            debug("waiting");
             datablock = serversock->read(16);
             if (datablock.size() != 16) {
                 serversock->close();
                 QApplication::quit();
             }
-            for (int i = 0; i < datablock.size(); i++) {
-                cout << datablock[i] << " ";
-            }
-            cout << "done waiting and receiving" << endl;
+            debug("done waiting and receiving");
             datablockindex++;
             this->messageoutput.append(datablock);
             if (datablockindex >= ndatablocks) {
@@ -188,7 +193,7 @@ void terminal::handledata()
             serversock->waitForBytesWritten();
 
             program_state = WAITING_FOR_CTRLCMD_MORE;
-            cout << "program state: WAITING_FOR_CTRLCMD_MORE" << endl << endl;
+            debug("program state: WAITING_FOR_CTRLCMD_MORE");
 
         }
     }
@@ -196,13 +201,13 @@ void terminal::handledata()
         QByteArray controlcommand;
         controlcommand = serversock->read(16);
         if (controlcommand.size() != 1) {
-            cout << "data is not 1 byte" << endl;
+            debug("data is not 1 byte");
             serversock->close();
             QApplication::quit();
         }
         else {
             if (controlcommand.at(0) == CMD_MORE_DATA) {
-                cout << "received CMD_MORE_DATA" << endl;
+                debug("received CMD_MORE_DATA");
                 controlcommand.clear();
                 controlcommand.append(ACK);
                 if (serversock->write(controlcommand, controlcommand.size()) == -1) {
@@ -211,10 +216,10 @@ void terminal::handledata()
                 }
                 serversock->waitForBytesWritten();
                 program_state = RECEIVING_DATABLOCK;
-                cout << "program state: RECEIVING_DATABLOCK" << endl << endl;
+                debug("program state: RECEIVING_DATABLOCK");
             }
             else if (controlcommand.at(0) == CMD_NO_DATA) {
-                cout << "no more data" << endl;
+                debug("no more data");
                 controlcommand.clear();
                 controlcommand.append(ACK);
                 if (serversock->write(controlcommand, controlcommand.size()) == -1) {
@@ -223,19 +228,19 @@ void terminal::handledata()
                 }
                 serversock->waitForBytesWritten();
                 program_state = WAITING_FOR_CTRLCMD;
-                cout << "program state: WAITING_FOR_CTRLCMD" << endl << endl;
+                debug("program state: WAITING_FOR_CTRLCMD");
             }
             else {
-                cout << "did not receive CMD_MORE_DATA" << endl;
+                debug("did not receive CMD_MORE_DATA");
                 program_state = UNINITIALIZED;
-                cout << "program state: UNITIALIZED" << endl << endl;
+                debug("program state: UNITIALIZED");
             }
         }
     }
     else {
-        cout << "program_state is invalid" << endl;
+        debug("program_state is invalid");
         program_state = UNINITIALIZED;
-        cout << "program state: UNITIALIZED" << endl << endl;
+        debug("program state: UNITIALIZED");
     }
 
 
@@ -273,6 +278,6 @@ void terminal::on_le_command_returnPressed()
 
     if (program_state == UNINITIALIZED) {
         program_state = WAITING_FOR_CTRLCMD;
-        cout << "program state: WAITING_FOR_CTRLCMD" << endl << endl;
+        debug("program state: WAITING_FOR_CTRLCMD");
     }
 }
