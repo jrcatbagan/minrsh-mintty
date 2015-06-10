@@ -89,8 +89,8 @@ int main(int argc, char **argv)
 
 		int i;
 		for (i = 0; i < 16; i++)
-			printf("%0x ", message[i]);
-		printf("\n");
+			debug("%0x ", message[i]);
+		debug("\n");
 
 		debug("invoking aes_decrypt()\n");
 		//aes_decrypt(message, key);
@@ -135,13 +135,13 @@ int main(int argc, char **argv)
 				char *command_output_buffer = malloc(sizeof(*command_output_buffer) * 16);;
 				size_t command_output_buffer_length = 16;
 
-				printf("\n");
+				debug("\n");
 
 				while (getline(&command_output_buffer, &command_output_buffer_length, 
 							command_pipe) != -1) {
-					printf("we have data to send\n");
+					debug("we have data to send\n");
 					send_controlcommand(client.fd, CMD_MORE_DATA);
-					printf("we are waiting to see if client ready to receive this data\n");
+					debug("we are waiting to see if client ready to receive this data\n");
 					controlcommand = receive_controlcommand(client.fd);
 					if (controlcommand != ACK) {
 						fprintf(stderr, "error: invalid acknowledgement\n");
@@ -150,26 +150,27 @@ int main(int argc, char **argv)
 						exit(1);
 					}
 
-					printf("we just received acknowledgement that the client is ready to receive the data\n");
-					printf("the first batch of data to send is: \n");
-					printf("\t%s - size %d\n", command_output_buffer, command_output_buffer_length);
+					debug("we just received acknowledgement that the client is ready to receive the data\n");
+					debug("the first batch of data to send is: \n");
+					debug("\t%s - size %d\n", command_output_buffer, command_output_buffer_length);
 
-					printf("we are sending the number of bytes in this batch of output\n");
+					debug("we are sending the number of bytes in this batch of output\n");
 					bytes_written = write(client.fd, &command_output_buffer_length,
 								sizeof(command_output_buffer_length));
 
 					unsigned int ndatablocks = (command_output_buffer_length + 16) / 16;
 					unsigned int datablockindex;
 					for (datablockindex = 0; datablockindex < ndatablocks; datablockindex++) {
-						printf("\nsending datablock # %d\n", datablockindex + 1);
+						debug("\nsending datablock # %d\n", datablockindex + 1);
 						bzero(message, sizeof(message));
 						unsigned int base = 16 * datablockindex;
 						int i, j;
 						for (i = base, j = 0; i < (base + 16); i++, j++)
 							message[j] = command_output_buffer[i];
-						printf("writing data\n");
+						debug("writing data\n");
 						bytes_written = write(client.fd, message, sizeof(message));
-						printf("we are waiting for the client to acknowledge the datablock we sent\n");
+						
+						debug("we are waiting for the client to acknowledge the datablock we sent\n");
 						controlcommand = receive_controlcommand(client.fd);
 						if (controlcommand != ACK) {
 							fprintf(stderr, "error: invalid acknowledgement\n");
@@ -178,10 +179,10 @@ int main(int argc, char **argv)
 							exit(1);
 						}
 
-						printf("the data has been successfully sent\n");
+						debug("the data has been successfully sent\n");
 
 						if ((datablockindex + 1) < ndatablocks) {
-							printf("we have more data to send so let's notify the client\n");
+							debug("we have more data to send so let's notify the client\n");
 							send_controlcommand(client.fd, CMD_MORE_DATA);
 							controlcommand = receive_controlcommand(client.fd);
 							if (controlcommand != ACK) {
@@ -191,11 +192,11 @@ int main(int argc, char **argv)
 								exit(1);
 							}
 
-							printf("the client acknowledges that they will receive more datablocks\n");
+							debug("the client acknowledges that they will receive more datablocks\n");
 
 						}
 						else {
-							printf("we have NO more data to send so let's notify the client\n");
+							debug("we have NO more data to send so let's notify the client\n");
 							send_controlcommand(client.fd, CMD_NO_DATA);
 							controlcommand = receive_controlcommand(client.fd);
 							if (controlcommand != ACK) {
@@ -205,7 +206,7 @@ int main(int argc, char **argv)
 								exit(1);
 							}
 							
-							printf("the client acknowledges that they will not receive data anymore\n");
+							debug("the client acknowledges that they will not receive data anymore\n");
 						}
 
 
@@ -214,9 +215,9 @@ int main(int argc, char **argv)
 
 				}
 
-				printf("we are notifying the client that we are done sending all data\n");
+				debug("we are notifying the client that we are done sending all data\n");
 				send_controlcommand(client.fd, CMD_NO_DATA);
-				printf("we sent that we have no more data\n");
+				debug("we sent that we have no more data\n");
 				controlcommand = receive_controlcommand(client.fd);
 				if (controlcommand != ACK) {
 					fprintf(stderr, "error: invalid acknowledgement\n");
@@ -225,8 +226,8 @@ int main(int argc, char **argv)
 					exit(1);
 				}
 
-				printf("the client has notified us that they acknowledge that there is no more data to send\n");
-				printf("\n");
+				debug("the client has notified us that they acknowledge that there is no more data to send\n");
+				debug("\n");
 
 
 

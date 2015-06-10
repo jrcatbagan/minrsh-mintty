@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 		debug("command entered: %s\n", message);
 
 		//debug("invoking aes_encrypt()\n");
-		aes_encrypt(message, key);
+		//aes_encrypt(message, key);
 		//debug("aes_encrypt() finished\n");
 
 		//debug("writing data via write()\n");
@@ -96,9 +96,11 @@ int main(int argc, char **argv)
 		unsigned char controlcommand;
 
 		while ((controlcommand = receive_controlcommand(server.fd)) == CMD_MORE_DATA) {
+			send_controlcommand(server.fd, ACK);
 			size_t nbyteoutput;
 			debug("trying to get number of bytes to receive\n");
 			bytes_read = read(server.fd, &nbyteoutput, sizeof(nbyteoutput));
+			//send_controlcommand(server.fd, ACK);
 			debug("received number of bytes to receive\n");
 			debug("number of bytes to receive is %d\n", nbyteoutput);
 
@@ -115,6 +117,7 @@ int main(int argc, char **argv)
 			for (datablockindex = 0; datablockindex < nblockdata; datablockindex++) {
 				debug("trying to receive data block\n");
 				bytes_read = read(server.fd, message, sizeof(message));
+				send_controlcommand(server.fd, ACK);
 				debug("received data block\n");
 				//debug("bytes read during a multi datablock transfer is %d\n", bytes_read);
 
